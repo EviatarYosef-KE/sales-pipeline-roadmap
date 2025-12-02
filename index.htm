@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Pipeline 2.0 - The ML Roadmap</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;        /* Cyan */
+            --accent-glow: rgba(56, 189, 248, 0.3);
+            --success: #4ade80;       /* Green */
+            --warning: #f87171;       /* Red */
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --line-color: #334155;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: #020617;
+            font-family: 'Urbanist', sans-serif;
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 { margin: 0; font-size: 48px; text-align: center; background: linear-gradient(90deg, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h2 { font-size: 24px; color: var(--text-muted); margin-bottom: 60px; font-weight: 400; text-align: center; }
+
+        /* --- THE ROADMAP CONTAINER --- */
+        .roadmap-container {
+            max-width: 800px;
+            width: 100%;
+            position: relative;
+            padding-left: 40px; /* Space for the line */
+        }
+
+        /* The Main Vertical Line */
+        .roadmap-line {
+            position: absolute;
+            left: 19px; /* Center of the 40px padding relative to dots */
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--accent) 0%, var(--line-color) 10%, var(--line-color) 90%, var(--success) 100%);
+            border-radius: 4px;
+            z-index: 0;
+        }
+
+        /* --- STAGE BLOCKS --- */
+        .stage-block {
+            background: var(--card-bg);
+            border: 1px solid var(--line-color);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 60px;
+            position: relative;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+            transition: transform 0.2s ease;
+        }
+        .stage-block:hover { transform: translateY(-5px); border-color: var(--accent); }
+
+        /* Stage Connecting Dot */
+        .stage-dot {
+            position: absolute;
+            left: -53px; /* Align with line */
+            top: 30px;
+            width: 30px;
+            height: 30px;
+            background: var(--bg-dark);
+            border: 4px solid var(--accent);
+            border-radius: 50%;
+            z-index: 1;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .stage-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--line-color); padding-bottom: 15px; }
+        .stage-title { font-size: 24px; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 10px; }
+        .stage-meta { font-size: 14px; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 5px 12px; border-radius: 20px; }
+
+        /* --- CHECKLIST ITEMS (MICRO STEPS) --- */
+        .step-list { list-style: none; padding: 0; margin: 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 8px;
+            border-left: 3px solid var(--line-color);
+        }
+        .step-item.critical { border-left-color: var(--warning); background: rgba(248, 113, 113, 0.05); }
+        .step-item.action { border-left-color: var(--accent); }
+        .step-item.decision { border-left-color: #a855f7; background: rgba(168, 85, 247, 0.05); }
+        
+        .step-icon { margin-top: 3px; width: 20px; text-align: center; }
+        .step-content { flex: 1; }
+        .step-title { font-weight: 600; display: block; margin-bottom: 4px; font-size: 16px; }
+        .step-desc { font-size: 14px; color: var(--text-muted); line-height: 1.4; }
+
+        /* --- THE GATES (TRANSITION LOGIC) --- */
+        .gate-block {
+            background: rgba(56, 189, 248, 0.05);
+            border: 2px dashed var(--accent);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            position: relative;
+        }
+        .gate-label {
+            position: absolute;
+            top: -14px;
+            left: 20px;
+            background: var(--bg-dark);
+            color: var(--accent);
+            padding: 0 10px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+        }
+        .gate-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .gate-req {
+            background: var(--bg-dark);
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid var(--line-color);
+        }
+        .gate-req h4 { margin: 0 0 5px 0; font-size: 13px; color: var(--text-muted); }
+        .gate-req p { margin: 0; font-size: 14px; font-weight: 600; }
+        .gate-req.stop { border-color: var(--warning); color: var(--warning); }
+
+        /* --- ARROW DOWN --- */
+        .arrow-down {
+            text-align: center;
+            font-size: 24px;
+            color: var(--text-muted);
+            margin: -40px 0 20px 0;
+            z-index: 2;
+            position: relative;
+            background: var(--bg-dark); /* Mask line behind */
+            width: 40px;
+            height: 40px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            border: 2px solid var(--line-color);
+            left: -20px; /* Adjust centering */
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>The Deal Navigator</h1>
+    <h2>HubSpot Sales Pipeline 2.0</h2>
+
+    <div class="roadmap-container">
+        <div class="roadmap-line"></div>
+
+        <!-- STAGE 0: INITIALIZATION -->
+        <div class="stage-block">
+            <div class="stage-dot"></div>
+            <div class="stage-header">
+                <div class="stage-title"><i class="fa-solid fa-flag-checkered"></i> 0. The Setup</div>
+                <div class="stage-meta">Pre-Deal Work</div>
+            </div>
+            
+            <ul class="step-list">
+                <li class="step-item action">
+                    <div class="step-icon"><i class="fa-solid fa-user-plus" style="color: var(--accent);"></i></div>
+                    <div class="step-content">
+                        <span class="step-title">Create/Identify Contact</span>
+                        <span class="step-desc">Find the Champion. Ensure full name & title. Assign association label: <strong>'Champion'</strong>.</span>
+                    </div>
+                </li>
+                <li class="step-item critical">
+                    <div class="step-icon"><i class="fa-solid fa-building" style="color: var(--warning);"></i></div>
+                    <div class="step-content">
+                        <span class="step-title">Validate Company Record (Crucial)</span>
+                        <span class="step-desc">Go to 'About this company' panel. You <strong>MUST</strong> update:
+                            <br>1. Company Name (Internal DB)
+                            <br>2. Company Owner (You)
+                            <br>3. Potential Sites & Pools
+                        </span>
+                    </div>
+                </li>
+                <li class="step-item action">
+                    <div class="step-icon"><i class="fa-solid fa-plus-circle" style="color: var(--success);"></i></div>
+                    <div class="step-content">
+                        <span class="step-title">Create Deal</span>
+                        <span class="step-desc">Click "+ Add Deal". Select <strong>Long-Term Pipeline</strong> (Prospecting or New Builds).</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="arrow-down"><i class="fa-solid fa-arrow-down"></i></div>
+
+        <!-- STAGE 1: LT PIPELINE -->
+        <div class="stage-block">
+            <div class="stage-dot"></div>
+            <div class="stage-header">
+                <div class="stage-title"><i class="fa-solid fa-seedling"></i> 1. Long-Term Pipeline</div>
+                <div class="stage-meta">Nurturing Phase</div>
+            </div>
+            
+            <div class="gate-block">
+                <div class="gate-label"><i class="fa-solid fa-lock"></i> Gate: Moving to Analysis</div>
+                <p style="margin: 0 0 10px 0; font-size: 14px;">Fill <strong>Pre Qualification (5/5)</strong> in Validation Tab.</p>
+                
+                <div class="gate-grid">
+                    <div class="gate-req">
+                        <h4>SLA Timeframe</h4>
+                        <p>Within 5 Mo?</p>
+                    </div>
+                    <div class="gate-req">
+                        <h4>Budget</h4>
+                        <p>Viable Year</p>
+                    </div>
+                    <div class="gate-req stop">
+                        <h4>Blockers?</h4>
+                        <p>Must be "No"</p>
+                    </div>
+                    <div class="gate-req">
+                        <h4>Go-Live</h4>
+                        <p>Est. Qtr</p>
+                    </div>
+                    <div class="gate-req">
+                        <h4>Materials</h4>
+                        <p>Sent? "Yes"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="arrow-down"><i class="fa-solid fa-arrow-down"></i></div>
+
+        <!-- STAGE 2: ANALYSIS -->
+        <div class="stage-block">
+            <div class="stage-dot"></div>
+            <div class="stage-header">
+                <div class="stage-title"><i class="fa-solid fa-magnifying-glass-chart"></i> 2. Analysis</div>
+                <div class="stage-meta">Sales Pipeline Entry</div>
+            </div>
+
+            <ul class="step-list">
+                <li class="step-item action">
+                    <div class="step-icon"><i class="fa-solid fa-water-ladder" style="color: var(--accent);"></i></div>
+                    <div class="step-content">
+                        <span class="step-title">Update Line Items (Pools)</span>
+                        <span class="step-desc">Before moving forward, edit the Line Items on the deal. Update <strong>Pool Type</strong> & <strong>Characteristics</strong>.</span>
+                    </div>
+                </li>
+                <li class="step-item critical">
+                    <div class="step-icon"><i class="fa-solid fa-calendar-days" style="color: var(--warning);"></i></div>
+                    <div class="step-content">
+                        <span class="step-title">Set Line Item Dates</span>
+                        <span class="step-desc">For every pool, update the <strong>Handover Date</strong> and <strong>Billing Start Date</strong>.</span>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="gate-block">
+                <div class="gate-label"><i class="fa-solid fa-lock"></i> Gate: Moving to Commitment</div>
+                <p style="margin: 0 0 10px 0; font-size: 14px;">Fill <strong>Pre Commitment Info (3/7)</strong>.</p>
+                <div class="gate-grid">
+                    <div class="gate-req">
+                        <h4>Doc Type</h4>
+                        <p>Select</p>
+                    </div>
+                    <div class="gate-req">
+                        <h4>Send Date</h4>
+                        <p>Mandatory</p>
+                    </div>
+                    <div class="gate-req">
+                        <h4>IT Partner</h4>
+                        <p>Identify</p>
+                    </div>
+                </div>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px; text-align: right;">*Ops trigger optional here.</p>
+            </div>
+        </div>
+
+        <div class="arrow-down"><i class="fa-solid fa-arrow-down"></i></div>
+
+        <!-- STAGE 3: COMMITMENT -->
+        <div class="stage-block">
+            <div class="stage-dot"></div>
+            <div class="stage-header">
+                <div class="stage-title"><i class="fa-solid fa-file-contract"></i> 3. Commitment</div>
+                <div class="stage-meta">Signing Phase</div>
+            </div>
+
+            <div class="gate-block">
+                <div class="gate-label"><i class="fa-solid fa-lock"></i> Gate: Moving to Setup</div>
+                <p style="margin: 0 0 10px 0; font-size: 14px;">Fill <strong>Commitment Info (8 req)</strong>.</p>
+                <div class="gate-grid">
+                    <div class="gate-req stop">
+                        <h4>Signed File</h4>
+                        <p>MUST Attach</p>
+                    </div>
+                    <div class="gate-req">
+                        <h4>Sig. Date</h4>
+                        <p>Date</p>
+                    </div>
+                    <div class="gate-req">
+                        <h4>PoC</h4>
+                        <p>Auto-Assoc.</p>
+                    </div>
+                    <div class="gate-req">
+                        <h4>Approvals</h4>
+                        <p>Asset/Budget</p>
+                    </div>
+                    <div class="gate-req" style="grid-column: span 2; border-color: var(--accent);">
+                        <h4 style="color: var(--accent);">Go-Live Date Change</h4>
+                        <p>Specific Day in Month</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="arrow-down"><i class="fa-solid fa-arrow-down"></i></div>
+
+        <!-- STAGE 4: SETUP -->
+        <div class="stage-block">
+            <div class="stage-dot"></div>
+            <div class="stage-header">
+                <div class="stage-title"><i class="fa-solid fa-tools"></i> 4. Setup</div>
+                <div class="stage-meta">Implementation</div>
+            </div>
+
+            <ul class="step-list">
+                <li class="step-item decision">
+                    <div class="step-icon"><i class="fa-solid fa-code-branch" style="color: #a855f7;"></i></div>
+                    <div class="step-content">
+                        <span class="step-title">Path Decision: Test Results</span>
+                        <span class="step-desc">
+                            <i class="fa-solid fa-check" style="color: var(--success);"></i> <strong>Pass:</strong> Move directly to <strong>Stage 6</strong> (Go-Live Validation).<br>
+                            <i class="fa-solid fa-triangle-exclamation" style="color: var(--warning);"></i> <strong>Need Training:</strong> Move to <strong>Stage 5</strong> (Soft Launch).
+                        </span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="arrow-down"><i class="fa-solid fa-arrow-down"></i></div>
+
+        <!-- STAGE 5: SOFT LAUNCH -->
+        <div class="stage-block">
+            <div class="stage-dot"></div>
+            <div class="stage-header">
+                <div class="stage-title"><i class="fa-solid fa-stopwatch"></i> 5. Soft Launch (Optional)</div>
+                <div class="stage-meta">Testing Phase</div>
+            </div>
+            
+            <ul class="step-list">
+                <li class="step-item action">
+                    <div class="step-icon"><i class="fa-solid fa-info-circle" style="color: var(--accent);"></i></div>
+                    <div class="step-content">
+                        <span class="step-title">Testing Period</span>
+                        <span class="step-desc">Site operations, watch activation, and staff training occur here.</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="arrow-down"><i class="fa-solid fa-arrow-down"></i></div>
+
+        <!-- STAGE 6: GO-LIVE VALIDATION -->
+        <div class="stage-block">
+            <div class="stage-dot"></div>
+            <div class="stage-header">
+                <div class="stage-title"><i class="fa-solid fa-rocket"></i> 6. Go-Live Validation</div>
+                <div class="stage-meta">The Final Hurdle</div>
+            </div>
+
+            <!-- CRITICAL STEP FOR LINE ITEMS -->
+            <ul class="step-list">
+                <li class="step-item critical">
+                    <div class="step-icon"><i class="fa-solid fa-file-invoice-dollar" style="color: var(--warning);"></i></div>
+                    <div class="step-content">
+                        <span class="step-title">Update Line Items (Final Billing Dates)</span>
+                        <span class="step-desc"><strong>Crucial:</strong> Update <strong>Handover Date</strong> & <strong>Billing Start Date</strong> for <em>each</em> pool to match Go-Live date.</span>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="gate-block">
+                <div class="gate-label"><i class="fa-solid fa-lock"></i> Gate: Moving to Go-Live</div>
+                <p style="margin: 0 0 10px 0; font-size: 14px;">Fill <strong>Go-Live Info (Total 10 Req)</strong>.</p>
+                
+                <!-- OPERATIONAL CHECK -->
+                <div style="margin-bottom: 10px; font-size: 12px; color: var(--accent); font-weight: 700; letter-spacing: 1px;">OPERATIONAL CHECK</div>
+                <div class="gate-grid" style="margin-bottom: 20px;">
+                    <div class="gate-req">
+                        <h4>Watches</h4>
+                        <p>Quantity</p>
+                    </div>
+                    <div class="gate-req">
+                        <h4>Activated</h4>
+                        <p>Yes/Partially</p>
+                    </div>
+                    <div class="gate-req stop">
+                        <h4>Training</h4>
+                        <p>Must be Yes</p>
+                    </div>
+                </div>
+
+                <!-- COMPLIANCE CHECK -->
+                <div style="margin-bottom: 10px; font-size: 12px; color: var(--accent); font-weight: 700; letter-spacing: 1px;">COMPLIANCE CHECK</div>
+                <div class="gate-grid">
+                    <div class="gate-req stop">
+                        <h4>IT & Security</h4>
+                        <p>Must be YES</p>
+                    </div>
+                    <div class="gate-req">
+                        <h4>GDPR</h4>
+                        <p>Confirm 3 Qs</p>
+                    </div>
+                    <div class="gate-req">
+                        <h4>Signed File</h4>
+                        <p>Verify</p>
+                    </div>
+                    <div class="gate-req" style="grid-column: span 3; border-color: var(--accent);">
+                        <h4 style="color: var(--accent);">Handover Date (ATP Fulfillment)</h4>
+                        <p>Critical for Billing Start</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="arrow-down"><i class="fa-solid fa-arrow-down"></i></div>
+
+        <!-- STAGE 7: PAYING -->
+        <div class="stage-block" style="border-color: var(--success); background: rgba(74, 222, 128, 0.05);">
+            <div class="stage-dot" style="border-color: var(--success); background: var(--success); box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);"></div>
+            <div class="stage-header" style="border-bottom: none; margin-bottom: 0;">
+                <div class="stage-title" style="color: var(--success);"><i class="fa-solid fa-sack-dollar"></i> 7. Paying</div>
+                <div class="stage-meta" style="color: var(--success); border: 1px solid var(--success);">Success</div>
+            </div>
+            <p style="margin-top: 15px; font-size: 14px; text-align: center; color: var(--text-muted);">
+                <i class="fa-solid fa-robot"></i> <strong>Automated:</strong> Deal moves here exactly 30 days after entering Go-Live.
+            </p>
+        </div>
+
+    </div>
+
+</body>
+</html>
