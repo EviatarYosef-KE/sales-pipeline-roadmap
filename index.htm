@@ -69,7 +69,7 @@
             box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
             transition: transform 0.2s ease;
         }
-        .stage-block:hover { transform: translateY(-5px); border-color: var(--accent); }
+        .stage-block:hover { transform: translateY(-2px); border-color: var(--accent); }
 
         /* Stage Connecting Dot */
         .stage-dot {
@@ -91,24 +91,82 @@
 
         /* --- CHECKLIST ITEMS (MICRO STEPS) --- */
         .step-list { list-style: none; padding: 0; margin: 0; }
+        
         .step-item {
             display: flex;
             align-items: flex-start;
             gap: 15px;
             margin-bottom: 15px;
-            padding: 10px;
+            padding: 12px;
             background: rgba(15, 23, 42, 0.5);
             border-radius: 8px;
             border-left: 3px solid var(--line-color);
+            cursor: pointer; /* Indicates clickable */
+            transition: all 0.2s ease;
+            position: relative;
         }
+        
+        .step-item:hover { background: rgba(56, 189, 248, 0.05); }
+
         .step-item.critical { border-left-color: var(--warning); background: rgba(248, 113, 113, 0.05); }
         .step-item.action { border-left-color: var(--accent); }
         .step-item.decision { border-left-color: #a855f7; background: rgba(168, 85, 247, 0.05); }
         
+        /* New Checkbox Styling */
+        .step-checkbox {
+            appearance: none;
+            min-width: 20px;
+            height: 20px;
+            border: 2px solid var(--text-muted);
+            border-radius: 4px;
+            margin-top: 3px;
+            cursor: pointer;
+            display: grid;
+            place-content: center;
+            transition: all 0.2s;
+        }
+        .step-checkbox::before {
+            content: "";
+            width: 10px;
+            height: 10px;
+            background: var(--bg-dark);
+            transform: scale(0);
+            transition: 0.2s transform ease-in-out;
+            box-shadow: inset 1em 1em var(--bg-dark);
+            transform-origin: center;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        }
+        
+        /* Completed State Styles */
+        .step-item.completed {
+            opacity: 0.5;
+            background: rgba(15, 23, 42, 0.3);
+            border-left-color: #475569;
+        }
+        .step-item.completed .step-title {
+            text-decoration: line-through;
+            color: #64748b;
+        }
+        .step-item.completed .step-desc {
+            color: #475569;
+        }
+        .step-item.completed .step-icon {
+            filter: grayscale(100%);
+            opacity: 0.5;
+        }
+        .step-item.completed .step-checkbox {
+            background-color: var(--success);
+            border-color: var(--success);
+        }
+        .step-item.completed .step-checkbox::before {
+            transform: scale(1);
+            background-color: white;
+        }
+
         .step-icon { margin-top: 3px; width: 20px; text-align: center; }
         .step-content { flex: 1; }
         .step-title { font-weight: 600; display: block; margin-bottom: 4px; font-size: 16px; }
-        .step-desc { font-size: 14px; color: var(--text-muted); line-height: 1.4; }
+        .step-desc { font-size: 14px; color: var(--text-muted); line-height: 1.4; transition: color 0.2s; }
 
         /* --- THE GATES (TRANSITION LOGIC) --- */
         .gate-block {
@@ -167,6 +225,23 @@
             border: 2px solid var(--line-color);
             left: -20px; /* Adjust centering */
         }
+        
+        /* Reset Button */
+        .reset-btn {
+            margin-top: 40px;
+            background: transparent;
+            border: 1px solid var(--text-muted);
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Urbanist', sans-serif;
+            transition: all 0.2s;
+        }
+        .reset-btn:hover {
+            border-color: var(--warning);
+            color: var(--warning);
+        }
 
     </style>
 </head>
@@ -188,6 +263,7 @@
             
             <ul class="step-list">
                 <li class="step-item action">
+                    <input type="checkbox" class="step-checkbox">
                     <div class="step-icon"><i class="fa-solid fa-user-plus" style="color: var(--accent);"></i></div>
                     <div class="step-content">
                         <span class="step-title">Create/Identify Contact</span>
@@ -195,6 +271,7 @@
                     </div>
                 </li>
                 <li class="step-item critical">
+                    <input type="checkbox" class="step-checkbox">
                     <div class="step-icon"><i class="fa-solid fa-building" style="color: var(--warning);"></i></div>
                     <div class="step-content">
                         <span class="step-title">Validate Company Record (Crucial)</span>
@@ -206,6 +283,7 @@
                     </div>
                 </li>
                 <li class="step-item action">
+                    <input type="checkbox" class="step-checkbox">
                     <div class="step-icon"><i class="fa-solid fa-plus-circle" style="color: var(--success);"></i></div>
                     <div class="step-content">
                         <span class="step-title">Create Deal</span>
@@ -266,6 +344,7 @@
 
             <ul class="step-list">
                 <li class="step-item action">
+                    <input type="checkbox" class="step-checkbox">
                     <div class="step-icon"><i class="fa-solid fa-water-ladder" style="color: var(--accent);"></i></div>
                     <div class="step-content">
                         <span class="step-title">Update Line Items (Pools)</span>
@@ -273,6 +352,7 @@
                     </div>
                 </li>
                 <li class="step-item critical">
+                    <input type="checkbox" class="step-checkbox">
                     <div class="step-icon"><i class="fa-solid fa-clipboard-check" style="color: var(--warning);"></i></div>
                     <div class="step-content">
                         <span class="step-title">Check Monitoring Specification</span>
@@ -352,6 +432,7 @@
 
             <ul class="step-list">
                 <li class="step-item decision">
+                    <input type="checkbox" class="step-checkbox">
                     <div class="step-icon"><i class="fa-solid fa-code-branch" style="color: #a855f7;"></i></div>
                     <div class="step-content">
                         <span class="step-title">Path Decision: Test Results</span>
@@ -376,6 +457,7 @@
             
             <ul class="step-list">
                 <li class="step-item action">
+                    <input type="checkbox" class="step-checkbox">
                     <div class="step-icon"><i class="fa-solid fa-info-circle" style="color: var(--accent);"></i></div>
                     <div class="step-content">
                         <span class="step-title">Testing Period</span>
@@ -398,6 +480,7 @@
             <!-- CRITICAL STEP FOR LINE ITEMS -->
             <ul class="step-list">
                 <li class="step-item critical">
+                    <input type="checkbox" class="step-checkbox">
                     <div class="step-icon"><i class="fa-solid fa-file-invoice-dollar" style="color: var(--warning);"></i></div>
                     <div class="step-content">
                         <span class="step-title">Update Line Items (Final Billing Dates)</span>
@@ -464,7 +547,60 @@
             </p>
         </div>
 
+        <button class="reset-btn" id="resetBtn">Reset All Checkboxes</button>
+
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const steps = document.querySelectorAll('.step-item');
+            const resetBtn = document.getElementById('resetBtn');
+            
+            // 1. Load saved state from LocalStorage
+            const savedState = JSON.parse(localStorage.getItem('dealNavigatorProgress')) || {};
+
+            steps.forEach((step, index) => {
+                const checkbox = step.querySelector('.step-checkbox');
+                
+                // Restore state if saved
+                if (savedState[index]) {
+                    checkbox.checked = true;
+                    step.classList.add('completed');
+                }
+
+                // 2. Click Logic
+                step.addEventListener('click', (e) => {
+                    // Toggle checkbox if user clicked the row (not the checkbox directly to avoid double toggle)
+                    if (e.target !== checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                    }
+                    
+                    // Update visual state
+                    if (checkbox.checked) {
+                        step.classList.add('completed');
+                        savedState[index] = true;
+                    } else {
+                        step.classList.remove('completed');
+                        delete savedState[index];
+                    }
+                    
+                    // Save to LocalStorage
+                    localStorage.setItem('dealNavigatorProgress', JSON.stringify(savedState));
+                });
+            });
+
+            // 3. Reset Button Logic
+            resetBtn.addEventListener('click', () => {
+                if(confirm('Are you sure you want to clear all progress?')) {
+                    localStorage.removeItem('dealNavigatorProgress');
+                    steps.forEach(step => {
+                        step.classList.remove('completed');
+                        step.querySelector('.step-checkbox').checked = false;
+                    });
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>
