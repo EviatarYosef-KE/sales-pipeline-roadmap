@@ -123,24 +123,82 @@
 
         /* --- CHECKLIST ITEMS (MICRO STEPS) --- */
         .step-list { list-style: none; padding: 0; margin: 0; }
+        
         .step-item {
             display: flex;
             align-items: flex-start;
             gap: 15px;
             margin-bottom: 15px;
-            padding: 10px;
+            padding: 12px;
             background: rgba(15, 23, 42, 0.5);
             border-radius: 8px;
             border-left: 3px solid var(--line-color);
+            cursor: pointer; /* Indicates clickable */
+            transition: all 0.2s ease;
+            position: relative;
         }
+        
+        .step-item:hover { background: rgba(56, 189, 248, 0.05); }
+
         .step-item.critical { border-left-color: var(--warning); background: rgba(248, 113, 113, 0.05); }
         .step-item.action { border-left-color: var(--accent); }
         .step-item.decision { border-left-color: #a855f7; background: rgba(168, 85, 247, 0.05); }
         
+        /* New Checkbox Styling */
+        .step-checkbox {
+            appearance: none;
+            min-width: 20px;
+            height: 20px;
+            border: 2px solid var(--text-muted);
+            border-radius: 4px;
+            margin-top: 3px;
+            cursor: pointer;
+            display: grid;
+            place-content: center;
+            transition: all 0.2s;
+        }
+        .step-checkbox::before {
+            content: "";
+            width: 10px;
+            height: 10px;
+            background: var(--bg-dark);
+            transform: scale(0);
+            transition: 0.2s transform ease-in-out;
+            box-shadow: inset 1em 1em var(--bg-dark);
+            transform-origin: center;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        }
+        
+        /* Completed State Styles */
+        .step-item.completed {
+            opacity: 0.5;
+            background: rgba(15, 23, 42, 0.3);
+            border-left-color: #475569;
+        }
+        .step-item.completed .step-title {
+            text-decoration: line-through;
+            color: #64748b;
+        }
+        .step-item.completed .step-desc {
+            color: #475569;
+        }
+        .step-item.completed .step-icon {
+            filter: grayscale(100%);
+            opacity: 0.5;
+        }
+        .step-item.completed .step-checkbox {
+            background-color: var(--success);
+            border-color: var(--success);
+        }
+        .step-item.completed .step-checkbox::before {
+            transform: scale(1);
+            background-color: white;
+        }
+
         .step-icon { margin-top: 3px; width: 20px; text-align: center; }
         .step-content { flex: 1; }
         .step-title { font-weight: 600; display: block; margin-bottom: 4px; font-size: 16px; }
-        .step-desc { font-size: 14px; color: var(--text-muted); line-height: 1.4; }
+        .step-desc { font-size: 14px; color: var(--text-muted); line-height: 1.4; transition: color 0.2s; }
 
         /* --- THE GATES (TRANSITION LOGIC) --- */
         .gate-block {
@@ -311,7 +369,7 @@
                     </div>
                     <div class="gate-req">
                         <h4>Materials</h4>
-                        <p>Sent? "Yes"</p>
+                        <p>Pick at least one</p>
                     </div>
                 </div>
             </div>
@@ -388,12 +446,20 @@
                         <p>Date</p>
                     </div>
                     <div class="gate-req">
-                        <h4>PoC</h4>
-                        <p>Auto-Assoc.</p>
+                        <h4>Doc Type</h4>
+                        <p>Check/Update</p>
+                    </div>
+                    <div class="gate-req">
+                        <h4>Contract Term</h4>
+                        <p>36 Mo (Default)</p>
                     </div>
                     <div class="gate-req">
                         <h4>Approvals</h4>
                         <p>Asset/Budget</p>
+                    </div>
+                    <div class="gate-req" style="grid-column: span 2;">
+                        <h4>PoC Association</h4>
+                        <p>Associate Contact &rarr; Auto-Yes</p>
                     </div>
                     <div class="gate-req" style="grid-column: span 2; border-color: var(--accent);">
                         <h4 style="color: var(--accent);">Go-Live Date Change</h4>
@@ -420,7 +486,7 @@
                         <span class="step-title">Path Decision: Test Results</span>
                         <span class="step-desc">
                             <i class="fa-solid fa-check" style="color: var(--success);"></i> <strong>Pass:</strong> Move directly to <strong>Stage 6</strong> (Go-Live Validation).<br>
-                            <i class="fa-solid fa-triangle-exclamation" style="color: var(--warning);"></i> <strong>Need Training:</strong> Move to <strong>Stage 5</strong> (Soft Launch).
+                            <i class="fa-solid fa-triangle-exclamation" style="color: var(--warning);"></i> <strong>Below prep day testing criteria:</strong> Move to <strong>Stage 5</strong> (Soft Launch).
                         </span>
                     </div>
                 </li>
@@ -506,8 +572,8 @@
                         <p>Verify</p>
                     </div>
                     <div class="gate-req" style="grid-column: span 3; border-color: var(--accent);">
-                        <h4 style="color: var(--accent);">Handover Date (ATP Fulfillment)</h4>
-                        <p>Critical for Billing Start</p>
+                        <h4 style="color: var(--accent);">Live Related Dates</h4>
+                        <p>Update Handover & Billing Start.<br>(Same date unless Trial)</p>
                     </div>
                 </div>
             </div>
