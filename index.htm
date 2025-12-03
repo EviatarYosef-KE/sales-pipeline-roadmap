@@ -194,6 +194,10 @@
         
         .reset-btn { margin-top: 40px; background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); padding: 8px 16px; border-radius: 4px; cursor: pointer; font-family: 'Urbanist', sans-serif; transition: all 0.2s; }
         .reset-btn:hover { border-color: var(--warning); color: var(--warning); }
+        
+        /* Tooltip hint */
+        .click-hint { position: absolute; left: -160px; top: 35px; font-size: 12px; color: var(--success); opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+        .stage-block:hover .click-hint { opacity: 1; }
     </style>
 </head>
 <body>
@@ -228,13 +232,13 @@
         <!-- STAGE 0: INITIALIZATION -->
         <div class="stage-block" id="stage-0">
             <div class="stage-dot" title="Click to complete stage"></div>
+            <div class="click-hint">Click dot to complete &rarr;</div>
             <div class="stage-header">
                 <div class="stage-title"><i class="fa-solid fa-flag-checkered"></i> 0. The Setup</div>
                 <div class="stage-meta">Pre-Deal Work</div>
             </div>
             
             <ul class="step-list">
-                <!-- MAPPED: Company Owner -->
                 <li class="step-item action" data-hs-obj="company" data-hs-prop="hubspot_owner_id">
                     <input type="checkbox" class="step-checkbox">
                     <div class="step-icon"><i class="fa-solid fa-user-plus" style="color: var(--accent);"></i></div>
@@ -243,7 +247,6 @@
                         <span class="step-desc">Find the Champion. Ensure full name & title. Assign association label: <strong>'Champion'</strong>.</span>
                     </div>
                 </li>
-                <!-- MAPPED: Company Name (Proxy for validating company record) -->
                 <li class="step-item critical" data-hs-obj="company" data-hs-prop="name">
                     <input type="checkbox" class="step-checkbox">
                     <div class="step-icon"><i class="fa-solid fa-building" style="color: var(--warning);"></i></div>
@@ -283,27 +286,22 @@
                 <p style="margin: 0 0 10px 0; font-size: 14px;">Fill <strong>Pre Qualification (5/5)</strong> in Validation Tab.</p>
                 
                 <div class="gate-grid">
-                    <!-- MAPPED: SLA Timeframe -->
                     <div class="gate-req" data-gate-prop="sla_signature_timeframe_is_within_the_upcoming_5_months_">
                         <h4>SLA Timeframe</h4>
                         <p>Within 5 Mo?</p>
                     </div>
-                    <!-- MAPPED: Budget -->
                     <div class="gate-req" data-gate-prop="budget_availability_options">
                         <h4>Budget</h4>
                         <p>Viable Year</p>
                     </div>
-                    <!-- MAPPED: Blockers (Negative Check) -->
                     <div class="gate-req stop" data-gate-prop="identified_deal_blockers_will_not_withhold_contract_signature_within_the_next_4_months" data-gate-negative="true">
                         <h4>Blockers?</h4>
                         <p>Must be "No"</p>
                     </div>
-                    <!-- MAPPED: Go-Live Date -->
                     <div class="gate-req" data-gate-prop="estimated__go_live__date">
                         <h4>Go-Live</h4>
                         <p>Est. Qtr</p>
                     </div>
-                    <!-- MAPPED: Materials -->
                     <div class="gate-req" data-gate-prop="key_materials_sent_to_prospect">
                         <h4>Materials</h4>
                         <p>Pick at least one</p>
@@ -345,17 +343,14 @@
                 <div class="gate-label"><i class="fa-solid fa-lock"></i> Gate: Moving to Commitment</div>
                 <p style="margin: 0 0 10px 0; font-size: 14px;">Fill <strong>Pre Commitment Info (3/7)</strong>.</p>
                 <div class="gate-grid">
-                    <!-- MAPPED: Doc Type -->
                     <div class="gate-req" data-gate-prop="commitment__document_type_">
                         <h4>Doc Type</h4>
                         <p>Select</p>
                     </div>
-                    <!-- MAPPED: Send Date -->
                     <div class="gate-req" data-gate-prop="recent_commitment_send_date">
                         <h4>Send Date</h4>
                         <p>Mandatory</p>
                     </div>
-                    <!-- MAPPED: IT Partner -->
                     <div class="gate-req" data-gate-prop="site_it_partner">
                         <h4>IT Partner</h4>
                         <p>Identify</p>
@@ -379,37 +374,30 @@
                 <div class="gate-label"><i class="fa-solid fa-lock"></i> Gate: Moving to Setup</div>
                 <p style="margin: 0 0 10px 0; font-size: 14px;">Fill <strong>Commitment Info (8 req)</strong>.</p>
                 <div class="gate-grid">
-                    <!-- MAPPED: Signed File -->
                     <div class="gate-req stop" data-gate-prop="signed_commitment_file">
                         <h4>Signed File</h4>
                         <p>MUST Attach</p>
                     </div>
-                    <!-- MAPPED: Sig Date -->
                     <div class="gate-req" data-gate-prop="recent_commitment_sig__date">
                         <h4>Sig. Date</h4>
                         <p>Date</p>
                     </div>
-                    <!-- MAPPED: Doc Type (Re-check) -->
                     <div class="gate-req" data-gate-prop="commitment__document_type_">
                         <h4>Doc Type</h4>
                         <p>Check/Update</p>
                     </div>
-                    <!-- MAPPED: Contract Term -->
                     <div class="gate-req" data-gate-prop="contract_term__in_years_">
                         <h4>Contract Term</h4>
                         <p>36 Mo (Default)</p>
                     </div>
-                    <!-- MAPPED: Approvals (Budget used as proxy) -->
                     <div class="gate-req" data-gate-prop="budget_approval">
                         <h4>Approvals</h4>
                         <p>Asset/Budget</p>
                     </div>
-                    <!-- MAPPED: PoC -->
                     <div class="gate-req" style="grid-column: span 2;" data-gate-prop="poc_associated">
                         <h4>PoC Association</h4>
                         <p>Associate Contact &rarr; Auto-Yes</p>
                     </div>
-                    <!-- MAPPED: Go-Live Date (Day) -->
                     <div class="gate-req" style="grid-column: span 2; border-color: var(--accent);" data-gate-prop="estimated__go_live__date">
                         <h4 style="color: var(--accent);">Go-Live Date Change</h4>
                         <p>Specific Day in Month</p>
@@ -436,7 +424,7 @@
                         <span class="step-title">Path Decision: Test Results</span>
                         <span class="step-desc">
                             <i class="fa-solid fa-check" style="color: var(--success);"></i> <strong>Pass:</strong> Move directly to <strong>Stage 6</strong> (Go-Live Validation).<br>
-                            <i class="fa-solid fa-triangle-exclamation" style="color: var(--warning);"></i> <strong>Below prep day testing criteria:</strong> Move to <strong>Stage 5</strong> (Soft Launch).
+                            <i class="fa-solid fa-triangle-exclamation" style="color: var(--warning);"></i> <strong>Need Training:</strong> Move to <strong>Stage 5</strong> (Soft Launch).
                         </span>
                     </div>
                 </li>
@@ -494,17 +482,14 @@
                 <!-- OPERATIONAL CHECK -->
                 <div style="margin-bottom: 10px; font-size: 12px; color: var(--accent); font-weight: 700; letter-spacing: 1px;">OPERATIONAL CHECK</div>
                 <div class="gate-grid" style="margin-bottom: 20px;">
-                    <!-- MAPPED: Watches -->
                     <div class="gate-req" data-gate-prop="number_of_watches">
                         <h4>Watches</h4>
                         <p>Quantity</p>
                     </div>
-                    <!-- MAPPED: Activated -->
                     <div class="gate-req" data-gate-prop="all_site_watches_have_been_activated_">
                         <h4>Activated</h4>
                         <p>Yes/Partially</p>
                     </div>
-                    <!-- MAPPED: Training -->
                     <div class="gate-req stop" data-gate-prop="site_staff_had_a_training_session_">
                         <h4>Training</h4>
                         <p>Must be Yes</p>
@@ -514,22 +499,18 @@
                 <!-- COMPLIANCE CHECK -->
                 <div style="margin-bottom: 10px; font-size: 12px; color: var(--accent); font-weight: 700; letter-spacing: 1px;">COMPLIANCE CHECK</div>
                 <div class="gate-grid">
-                    <!-- MAPPED: IT Approval -->
                     <div class="gate-req stop" data-gate-prop="it_approval_received">
                         <h4>IT & Security</h4>
                         <p>Must be YES</p>
                     </div>
-                    <!-- MAPPED: GDPR -->
                     <div class="gate-req" data-gate-prop="security_gdpr_approval">
                         <h4>GDPR</h4>
                         <p>Confirm 3 Qs</p>
                     </div>
-                    <!-- MAPPED: Signed File (Re-check) -->
                     <div class="gate-req" data-gate-prop="signed_commitment_file">
                         <h4>Signed File</h4>
                         <p>Verify</p>
                     </div>
-                    <!-- MAPPED: Handover Date -->
                     <div class="gate-req" style="grid-column: span 3; border-color: var(--accent);" data-gate-prop="handover_date__atp_fulfillment_">
                         <h4 style="color: var(--accent);">Live Related Dates</h4>
                         <p>Update Handover & Billing Start.<br>(Same date unless Trial)</p>
