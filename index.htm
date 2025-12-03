@@ -114,7 +114,7 @@
             transition: all 0.2s;
         }
         .hs-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
-        .hs-btn:disabled { background: var(--text-muted); cursor: not-allowed; }
+        .hs-btn:disabled { background: var(--text-muted); cursor: not-allowed; filter: grayscale(1); }
 
         /* Loading Spinner */
         .spinner {
@@ -198,11 +198,30 @@
         /* Tooltip hint */
         .click-hint { position: absolute; left: -160px; top: 35px; font-size: 12px; color: var(--success); opacity: 0; transition: opacity 0.3s; pointer-events: none; }
         .stage-block:hover .click-hint { opacity: 1; }
+
+        /* --- NEW TOAST NOTIFICATION STYLES --- */
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: var(--warning);
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1000;
+            bottom: 30px;
+            right: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s;
+        }
+        .toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+        .toast.success { background-color: var(--success); color: var(--bg-dark); }
     </style>
 </head>
 <body>
 
-    <!-- HUBSPOT CONNECT BAR -->
     <div class="hubspot-bar">
         <div class="bar-header">
             <div class="bar-title">
@@ -229,7 +248,6 @@
     <div class="roadmap-container">
         <div class="roadmap-line"></div>
 
-        <!-- STAGE 0: INITIALIZATION -->
         <div class="stage-block" id="stage-0">
             <div class="stage-dot" title="Click to complete stage"></div>
             <div class="click-hint">Click dot to complete &rarr;</div>
@@ -273,7 +291,6 @@
 
         <div class="arrow-down"><i class="fa-solid fa-arrow-down"></i></div>
 
-        <!-- STAGE 1: LT PIPELINE -->
         <div class="stage-block" id="stage-1">
             <div class="stage-dot" title="Click to complete stage"></div>
             <div class="stage-header">
@@ -312,7 +329,6 @@
 
         <div class="arrow-down"><i class="fa-solid fa-arrow-down"></i></div>
 
-        <!-- STAGE 2: ANALYSIS -->
         <div class="stage-block" id="stage-2">
             <div class="stage-dot" title="Click to complete stage"></div>
             <div class="stage-header">
@@ -362,7 +378,6 @@
 
         <div class="arrow-down"><i class="fa-solid fa-arrow-down"></i></div>
 
-        <!-- STAGE 3: COMMITMENT -->
         <div class="stage-block" id="stage-3">
             <div class="stage-dot" title="Click to complete stage"></div>
             <div class="stage-header">
@@ -408,7 +423,6 @@
 
         <div class="arrow-down"><i class="fa-solid fa-arrow-down"></i></div>
 
-        <!-- STAGE 4: SETUP -->
         <div class="stage-block" id="stage-4">
             <div class="stage-dot" title="Click to complete stage"></div>
             <div class="stage-header">
@@ -433,7 +447,6 @@
 
         <div class="arrow-down"><i class="fa-solid fa-arrow-down"></i></div>
 
-        <!-- STAGE 5: SOFT LAUNCH -->
         <div class="stage-block" id="stage-5">
             <div class="stage-dot" title="Click to complete stage"></div>
             <div class="stage-header">
@@ -455,7 +468,6 @@
 
         <div class="arrow-down"><i class="fa-solid fa-arrow-down"></i></div>
 
-        <!-- STAGE 6: GO-LIVE VALIDATION -->
         <div class="stage-block" id="stage-6">
             <div class="stage-dot" title="Click to complete stage"></div>
             <div class="stage-header">
@@ -463,7 +475,6 @@
                 <div class="stage-meta">The Final Hurdle</div>
             </div>
 
-            <!-- CRITICAL STEP FOR LINE ITEMS -->
             <ul class="step-list">
                 <li class="step-item critical">
                     <input type="checkbox" class="step-checkbox">
@@ -479,7 +490,6 @@
                 <div class="gate-label"><i class="fa-solid fa-lock"></i> Gate: Moving to Go-Live</div>
                 <p style="margin: 0 0 10px 0; font-size: 14px;">Fill <strong>Go-Live Info (Total 10 Req)</strong>.</p>
                 
-                <!-- OPERATIONAL CHECK -->
                 <div style="margin-bottom: 10px; font-size: 12px; color: var(--accent); font-weight: 700; letter-spacing: 1px;">OPERATIONAL CHECK</div>
                 <div class="gate-grid" style="margin-bottom: 20px;">
                     <div class="gate-req" data-gate-prop="number_of_watches">
@@ -496,7 +506,6 @@
                     </div>
                 </div>
 
-                <!-- COMPLIANCE CHECK -->
                 <div style="margin-bottom: 10px; font-size: 12px; color: var(--accent); font-weight: 700; letter-spacing: 1px;">COMPLIANCE CHECK</div>
                 <div class="gate-grid">
                     <div class="gate-req stop" data-gate-prop="it_approval_received">
@@ -521,7 +530,6 @@
 
         <div class="arrow-down"><i class="fa-solid fa-arrow-down"></i></div>
 
-        <!-- STAGE 7: PAYING -->
         <div class="stage-block" id="stage-7">
             <div class="stage-dot" title="Click to complete stage"></div>
             <div class="stage-header" style="border-bottom: none; margin-bottom: 0;">
@@ -534,11 +542,14 @@
         </div>
 
         <button class="reset-btn" id="resetBtn">Reset All Checkboxes</button>
+        
+        <div id="toast" class="toast">Error message here</div>
 
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // UI Elements
             const stages = document.querySelectorAll('.stage-block');
             const steps = document.querySelectorAll('.step-item');
             const resetBtn = document.getElementById('resetBtn');
@@ -549,33 +560,49 @@
             const dealNameDisplay = document.getElementById('dealNameDisplay');
             const dealContext = document.getElementById('dealContext');
             const loadingSpinner = document.getElementById('loadingSpinner');
-            
-            // 1. Load saved state from LocalStorage
-            const savedState = JSON.parse(localStorage.getItem('dealNavigatorStages')) || {};
-            const savedChecks = JSON.parse(localStorage.getItem('dealNavigatorChecks')) || {};
+            const toast = document.getElementById('toast');
 
+            // State Management
+            const STATE_KEY = 'dealNavigatorStages';
+            const CHECK_KEY = 'dealNavigatorChecks';
+            const savedState = JSON.parse(localStorage.getItem(STATE_KEY)) || {};
+            const savedChecks = JSON.parse(localStorage.getItem(CHECK_KEY)) || {};
+
+            // --- UTILITIES ---
+            // New Toast logic replacing alert()
+            const showToast = (msg, type = 'error') => {
+                toast.innerText = msg;
+                toast.className = `toast show ${type === 'success' ? 'success' : ''}`;
+                // Hide after 3 seconds
+                setTimeout(() => { 
+                    toast.className = toast.className.replace('show', ''); 
+                }, 3000);
+            };
+
+            const updateLocalStorage = (key, data) => localStorage.setItem(key, JSON.stringify(data));
+
+            // --- INITIALIZATION ---
             // Restore Stage State (Big Dots)
             stages.forEach((stage) => {
-                const stageId = stage.id;
-                if (savedState[stageId]) {
+                if (savedState[stage.id]) {
                     stage.classList.add('completed');
                 }
                 const dot = stage.querySelector('.stage-dot');
                 if(dot) {
                     dot.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        const isCompleted = stage.classList.toggle('completed');
-                        if (isCompleted) {
-                            savedState[stageId] = true;
+                        const isComplete = stage.classList.toggle('completed');
+                        if (isComplete) {
+                            savedState[stage.id] = true;
                         } else {
-                            delete savedState[stageId];
+                            delete savedState[stage.id];
                         }
-                        localStorage.setItem('dealNavigatorStages', JSON.stringify(savedState));
+                        updateLocalStorage(STATE_KEY, savedState);
                     });
                 }
             });
 
-            // Restore Checkbox State (Small items)
+            // Restore Checkbox State
             steps.forEach((step, index) => {
                 const checkbox = step.querySelector('.step-checkbox');
                 if (savedChecks[index]) {
@@ -583,70 +610,87 @@
                     step.classList.add('completed');
                 }
 
+                // Make the whole row clickable
                 step.addEventListener('click', (e) => {
-                    if (e.target !== checkbox) {
-                        checkbox.checked = !checkbox.checked;
-                    }
-                    if (checkbox.checked) {
-                        step.classList.add('completed');
-                        savedChecks[index] = true;
-                    } else {
-                        step.classList.remove('completed');
-                        delete savedChecks[index];
-                    }
-                    localStorage.setItem('dealNavigatorChecks', JSON.stringify(savedChecks));
+                    // Prevent double toggle if clicking directly on checkbox
+                    if (e.target === checkbox) return; 
+
+                    checkbox.checked = !checkbox.checked;
+                    handleStepChange(step, index, checkbox.checked);
+                });
+
+                // Listen for direct checkbox clicks
+                checkbox.addEventListener('change', () => {
+                    handleStepChange(step, index, checkbox.checked);
                 });
             });
+
+            function handleStepChange(step, index, isChecked) {
+                if (isChecked) {
+                    step.classList.add('completed');
+                    savedChecks[index] = true;
+                } else {
+                    step.classList.remove('completed');
+                    delete savedChecks[index];
+                }
+                updateLocalStorage(CHECK_KEY, savedChecks);
+            }
 
             // Reset Button Logic
             resetBtn.addEventListener('click', () => {
                 if(confirm('Are you sure you want to clear all progress?')) {
-                    localStorage.removeItem('dealNavigatorStages');
-                    localStorage.removeItem('dealNavigatorChecks');
-                    stages.forEach(stage => stage.classList.remove('completed'));
-                    steps.forEach(step => {
-                        step.classList.remove('completed');
-                        step.querySelector('.step-checkbox').checked = false;
-                    });
+                    localStorage.removeItem(STATE_KEY);
+                    localStorage.removeItem(CHECK_KEY);
+                    location.reload(); // Cleanest way to reset UI
                 }
             });
 
             // --- HUBSPOT INTEGRATION LOGIC ---
             loadDealBtn.addEventListener('click', async () => {
                 const dealId = dealIdInput.value.trim();
-                if (!dealId) return alert('Please enter a Deal ID');
+                if (!dealId) return showToast('Please enter a Deal ID');
 
                 // UI Loading State
-                loadDealBtn.disabled = true;
-                loadDealBtn.innerText = 'Fetching...';
-                loadingSpinner.style.display = 'block';
+                setLoading(true);
 
                 try {
                     const response = await fetch(`/api/deal-status?dealId=${dealId}`);
                     const data = await response.json();
 
-                    if (!response.ok) throw new Error(data.error || 'Failed to fetch');
+                    if (!response.ok) throw new Error(data.error || 'Failed to fetch deal');
 
                     // Success!
                     statusOffline.classList.add('hidden');
                     statusOnline.classList.add('active');
                     dealContext.style.display = 'block';
-                    dealNameDisplay.innerText = data.deal.dealname || 'Unknown Deal';
-
+                    dealNameDisplay.innerText = data.deal?.dealname || 'Unnamed Deal';
+                    
+                    showToast('Deal Loaded Successfully', 'success');
+                    
                     // AUTO-CHECK LOGIC
                     checkProperties(data);
 
                 } catch (err) {
-                    alert('Error: ' + err.message);
+                    console.error(err);
+                    showToast(err.message);
+                    statusOnline.classList.remove('active');
+                    statusOffline.classList.remove('hidden');
                 } finally {
-                    loadDealBtn.disabled = false;
-                    loadDealBtn.innerText = 'Load Deal';
-                    loadingSpinner.style.display = 'none';
+                    setLoading(false);
                 }
             });
 
+            function setLoading(isLoading) {
+                loadDealBtn.disabled = isLoading;
+                loadDealBtn.innerText = isLoading ? 'Fetching...' : 'Load Deal';
+                loadingSpinner.style.display = isLoading ? 'block' : 'none';
+            }
+
             function checkProperties(data) {
-                const deal = data.deal || {};
+                // Defensive check: ensure deal object exists
+                if (!data.deal) return;
+                
+                const deal = data.deal;
                 const company = data.company || {};
 
                 // Helper to check standard Yes/No or Existence
@@ -657,15 +701,18 @@
                     const prop = gate.getAttribute('data-gate-prop');
                     const isNegativeCheck = gate.getAttribute('data-gate-negative') === 'true';
                     
-                    if (prop && deal[prop]) {
+                    // Safety check if prop exists on deal
+                    const val = deal[prop];
+                    
+                    if (val !== undefined) {
                         let passed = false;
                         
                         // Negative checks (Blockers) - Valid if "No" or "False"
                         if (isNegativeCheck) {
-                            if (deal[prop] === 'No' || deal[prop] === 'false') passed = true;
+                            if (val === 'No' || val === 'false') passed = true;
                         } else {
                             // Standard checks - Valid if populated and not "No"
-                            if (isValid(deal[prop])) passed = true;
+                            if (isValid(val)) passed = true;
                         }
 
                         if (passed) {
@@ -679,23 +726,20 @@
                     const objType = step.getAttribute('data-hs-obj');
                     const propName = step.getAttribute('data-hs-prop');
                     
+                    if (!objType || !propName) return;
+
                     let targetData = objType === 'company' ? company : deal;
                     
-                    if (propName && targetData[propName]) {
-                        if (isValid(targetData[propName])) {
-                            // Programmatically click
-                            const checkbox = step.querySelector('.step-checkbox');
-                            if (!checkbox.checked) {
-                                checkbox.checked = true;
-                                step.classList.add('completed');
-                                savedChecks[index] = true;
-                            }
+                    if (targetData && isValid(targetData[propName])) {
+                        // Programmatically click
+                        const checkbox = step.querySelector('.step-checkbox');
+                        if (!checkbox.checked) {
+                            checkbox.checked = true;
+                            // Use our handler to ensure visual state & localStorage update
+                            handleStepChange(step, index, true);
                         }
                     }
                 });
-                
-                // Save updates
-                localStorage.setItem('dealNavigatorChecks', JSON.stringify(savedChecks));
             }
         });
     </script>
