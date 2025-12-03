@@ -753,7 +753,8 @@
                     if (val !== undefined) {
                         let passed = false;
                         if (isNegativeCheck) {
-                            if (val === 'No' || val === 'false') passed = true;
+                            // NEW: Check for "N/A", "No", or "false" explicitly
+                            if (val === 'No' || val === 'false' || val === 'N/A') passed = true;
                         } else {
                             if (isValid(val)) passed = true;
                         }
