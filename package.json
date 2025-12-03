@@ -1,6 +1,10 @@
 {
   "name": "sales-pipeline-dashboard",
-  "version": "1.0.0",
+  "version": "1.0.1",
+  "description": "Sales Pipeline 2.0 Dashboard with HubSpot Integration",
+  "engines": {
+    "node": "18.x"
+  },
   "dependencies": {
     "@hubspot/api-client": "^10.0.0"
   }
