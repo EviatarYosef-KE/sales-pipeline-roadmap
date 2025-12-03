@@ -135,6 +135,22 @@
             display: none;
             margin-top: 5px;
         }
+        
+        /* --- NEW STAGE TAG --- */
+        .stage-tag {
+            display: none; /* Hidden by default */
+            background: rgba(168, 85, 247, 0.2); /* Purple background */
+            border: 1px solid #a855f7;           /* Purple border */
+            color: #e9d5ff;                      /* Light purple text */
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
 
         /* --- ROADMAP STYLES --- */
         h1 { margin: 0; font-size: 48px; text-align: center; background: linear-gradient(90deg, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -237,8 +253,11 @@
             <button class="hs-btn" id="loadDealBtn">Load Deal</button>
             <div class="spinner" id="loadingSpinner"></div>
         </div>
+        
         <div class="deal-context" id="dealContext">
-            <strong>Active Deal:</strong> <span id="dealNameDisplay">...</span>
+            <strong>Active Deal:</strong> 
+            <span id="dealNameDisplay">...</span>
+            <span id="dealStageDisplay" class="stage-tag"></span>
         </div>
     </div>
 
@@ -558,6 +577,7 @@
             const statusOffline = document.getElementById('statusOffline');
             const statusOnline = document.getElementById('statusOnline');
             const dealNameDisplay = document.getElementById('dealNameDisplay');
+            const dealStageDisplay = document.getElementById('dealStageDisplay'); // NEW
             const dealContext = document.getElementById('dealContext');
             const loadingSpinner = document.getElementById('loadingSpinner');
             const toast = document.getElementById('toast');
@@ -663,7 +683,19 @@
                     statusOffline.classList.add('hidden');
                     statusOnline.classList.add('active');
                     dealContext.style.display = 'block';
+                    
+                    // 1. Set Name
                     dealNameDisplay.innerText = data.deal?.dealname || 'Unnamed Deal';
+
+                    // 2. Set Stage (NEW)
+                    const rawStage = data.deal?.dealstage;
+                    if (rawStage) {
+                        const formattedStage = rawStage.replace(/_/g, ' '); 
+                        dealStageDisplay.innerText = formattedStage;
+                        dealStageDisplay.style.display = 'inline-block';
+                    } else {
+                        dealStageDisplay.style.display = 'none';
+                    }
                     
                     showToast('Deal Loaded Successfully', 'success');
                     
