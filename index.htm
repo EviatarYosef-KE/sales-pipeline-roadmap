@@ -136,7 +136,7 @@
             margin-top: 5px;
         }
         
-        /* --- NEW STAGE TAG --- */
+        /* --- STAGE TAG (NEW) --- */
         .stage-tag {
             display: none; /* Hidden by default */
             background: rgba(168, 85, 247, 0.2); /* Purple background */
@@ -215,7 +215,7 @@
         .click-hint { position: absolute; left: -160px; top: 35px; font-size: 12px; color: var(--success); opacity: 0; transition: opacity 0.3s; pointer-events: none; }
         .stage-block:hover .click-hint { opacity: 1; }
 
-        /* --- NEW TOAST NOTIFICATION STYLES --- */
+        /* --- TOAST NOTIFICATION STYLES --- */
         .toast {
             visibility: hidden;
             min-width: 250px;
@@ -577,7 +577,7 @@
             const statusOffline = document.getElementById('statusOffline');
             const statusOnline = document.getElementById('statusOnline');
             const dealNameDisplay = document.getElementById('dealNameDisplay');
-            const dealStageDisplay = document.getElementById('dealStageDisplay'); // NEW
+            const dealStageDisplay = document.getElementById('dealStageDisplay');
             const dealContext = document.getElementById('dealContext');
             const loadingSpinner = document.getElementById('loadingSpinner');
             const toast = document.getElementById('toast');
@@ -589,11 +589,9 @@
             const savedChecks = JSON.parse(localStorage.getItem(CHECK_KEY)) || {};
 
             // --- UTILITIES ---
-            // New Toast logic replacing alert()
             const showToast = (msg, type = 'error') => {
                 toast.innerText = msg;
                 toast.className = `toast show ${type === 'success' ? 'success' : ''}`;
-                // Hide after 3 seconds
                 setTimeout(() => { 
                     toast.className = toast.className.replace('show', ''); 
                 }, 3000);
@@ -630,16 +628,13 @@
                     step.classList.add('completed');
                 }
 
-                // Make the whole row clickable
                 step.addEventListener('click', (e) => {
-                    // Prevent double toggle if clicking directly on checkbox
                     if (e.target === checkbox) return; 
 
                     checkbox.checked = !checkbox.checked;
                     handleStepChange(step, index, checkbox.checked);
                 });
 
-                // Listen for direct checkbox clicks
                 checkbox.addEventListener('change', () => {
                     handleStepChange(step, index, checkbox.checked);
                 });
@@ -656,12 +651,11 @@
                 updateLocalStorage(CHECK_KEY, savedChecks);
             }
 
-            // Reset Button Logic
             resetBtn.addEventListener('click', () => {
                 if(confirm('Are you sure you want to clear all progress?')) {
                     localStorage.removeItem(STATE_KEY);
                     localStorage.removeItem(CHECK_KEY);
-                    location.reload(); // Cleanest way to reset UI
+                    location.reload(); 
                 }
             });
 
@@ -670,7 +664,6 @@
                 const dealId = dealIdInput.value.trim();
                 if (!dealId) return showToast('Please enter a Deal ID');
 
-                // UI Loading State
                 setLoading(true);
 
                 try {
@@ -687,12 +680,37 @@
                     // 1. Set Name
                     dealNameDisplay.innerText = data.deal?.dealname || 'Unnamed Deal';
 
-                    // 2. Set Stage (NEW)
+                    // 2. Set Stage (WITH DICTIONARY MAPPING)
                     const rawStage = data.deal?.dealstage;
+                    
+                    const stageDictionary = {
+                        // Sales Pipeline
+                        'appointmentscheduled': 'Analysis',
+                        '1881591013': 'Commitment',
+                        'decisionmakerboughtin': 'Setup',
+                        '1881591014': 'Soft Launch',
+                        '223218406': 'Go-Live',
+                        '483245762': 'Paying',
+
+                        // Long Term Pipeline
+                        '1881591003': 'Prospecting',
+                        '1881591004': 'New Builds',
+                        '1881591002': 'Stuck'
+                    };
+
                     if (rawStage) {
-                        const formattedStage = rawStage.replace(/_/g, ' '); 
-                        dealStageDisplay.innerText = formattedStage;
+                        // If mapping found use it, otherwise use raw stage
+                        const finalStageName = stageDictionary[rawStage] || rawStage;
+                        
+                        dealStageDisplay.innerText = finalStageName;
                         dealStageDisplay.style.display = 'inline-block';
+                        
+                        // Optional: Highlight "Paying" or "Closed Won" in Green
+                        if(rawStage === '483245762' || rawStage === 'closedwon') {
+                             dealStageDisplay.style.borderColor = 'var(--success)';
+                             dealStageDisplay.style.color = 'var(--success)';
+                             dealStageDisplay.style.backgroundColor = 'rgba(74, 222, 128, 0.1)';
+                        }
                     } else {
                         dealStageDisplay.style.display = 'none';
                     }
@@ -719,31 +737,25 @@
             }
 
             function checkProperties(data) {
-                // Defensive check: ensure deal object exists
                 if (!data.deal) return;
                 
                 const deal = data.deal;
                 const company = data.company || {};
 
-                // Helper to check standard Yes/No or Existence
                 const isValid = (val) => val && val !== '' && val !== 'No' && val !== 'false';
 
-                // 1. MAP GATES (Small Squares)
+                // 1. MAP GATES
                 document.querySelectorAll('.gate-req').forEach(gate => {
                     const prop = gate.getAttribute('data-gate-prop');
                     const isNegativeCheck = gate.getAttribute('data-gate-negative') === 'true';
                     
-                    // Safety check if prop exists on deal
                     const val = deal[prop];
                     
                     if (val !== undefined) {
                         let passed = false;
-                        
-                        // Negative checks (Blockers) - Valid if "No" or "False"
                         if (isNegativeCheck) {
                             if (val === 'No' || val === 'false') passed = true;
                         } else {
-                            // Standard checks - Valid if populated and not "No"
                             if (isValid(val)) passed = true;
                         }
 
@@ -753,7 +765,7 @@
                     }
                 });
 
-                // 2. MAP CHECKLIST ITEMS (LIs)
+                // 2. MAP CHECKLIST ITEMS
                 document.querySelectorAll('.step-item').forEach((step, index) => {
                     const objType = step.getAttribute('data-hs-obj');
                     const propName = step.getAttribute('data-hs-prop');
@@ -763,11 +775,9 @@
                     let targetData = objType === 'company' ? company : deal;
                     
                     if (targetData && isValid(targetData[propName])) {
-                        // Programmatically click
                         const checkbox = step.querySelector('.step-checkbox');
                         if (!checkbox.checked) {
                             checkbox.checked = true;
-                            // Use our handler to ensure visual state & localStorage update
                             handleStepChange(step, index, true);
                         }
                     }
