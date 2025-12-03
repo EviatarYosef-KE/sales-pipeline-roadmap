@@ -29,13 +29,13 @@
             font-family: 'Urbanist', sans-serif;
             color: var(--text-main);
             margin: 0;
-            padding: 40px 40px 100px 40px; /* Added bottom padding */
+            padding: 40px 40px 100px 40px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        /* --- HUBSPOT CONNECT BAR (NEW) --- */
+        /* --- HUBSPOT CONNECT BAR --- */
         .hubspot-bar {
             width: 100%;
             max-width: 800px;
@@ -49,6 +49,9 @@
             flex-direction: column;
             gap: 15px;
             box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
+            position: sticky;
+            top: 20px;
+            z-index: 100;
         }
 
         .bar-header {
@@ -78,6 +81,8 @@
         }
         .status-offline { background: rgba(148, 163, 184, 0.2); color: var(--text-muted); border: 1px solid var(--line-color); }
         .status-online { background: rgba(74, 222, 128, 0.2); color: var(--success); border: 1px solid var(--success); display: none; }
+        .status-online.active { display: inline-block; }
+        .status-offline.hidden { display: none; }
 
         .bar-controls {
             display: flex;
@@ -109,261 +114,86 @@
             transition: all 0.2s;
         }
         .hs-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .hs-btn:disabled { background: var(--text-muted); cursor: not-allowed; }
 
-        /* --- TYPOGRAPHY --- */
-        h1 { margin: 0; font-size: 48px; text-align: center; background: linear-gradient(90deg, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        h2 { font-size: 24px; color: var(--text-muted); margin-bottom: 40px; font-weight: 400; text-align: center; }
-
-        /* --- THE ROADMAP CONTAINER --- */
-        .roadmap-container {
-            max-width: 800px;
-            width: 100%;
-            position: relative;
-            padding-left: 40px; /* Space for the line */
-        }
-
-        /* The Main Vertical Line */
-        .roadmap-line {
-            position: absolute;
-            left: 19px; /* Center of the 40px padding relative to dots */
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: linear-gradient(180deg, var(--accent) 0%, var(--line-color) 10%, var(--line-color) 90%, var(--success) 100%);
-            border-radius: 4px;
-            z-index: 0;
-        }
-
-        /* --- STAGE BLOCKS --- */
-        .stage-block {
-            background: var(--card-bg);
-            border: 1px solid var(--line-color);
-            border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 60px;
-            position: relative;
-            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
-            transition: all 0.3s ease;
-        }
-        
-        /* Interactive Stage Dot */
-        .stage-dot {
-            position: absolute;
-            left: -53px; /* Align with line */
-            top: 30px;
-            width: 34px;
-            height: 34px;
-            background: var(--bg-dark);
-            border: 4px solid var(--accent);
+        /* Loading Spinner */
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
             border-radius: 50%;
-            z-index: 2;
-            box-shadow: 0 0 15px var(--accent-glow);
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: grid;
-            place-items: center;
-            color: var(--bg-dark);
-            font-size: 16px;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
         }
-        
-        .stage-dot:hover {
-            transform: scale(1.2);
-            border-color: var(--success);
-            box-shadow: 0 0 20px rgba(74, 222, 128, 0.6);
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Deal Context Info */
+        .deal-context {
+            font-size: 14px;
+            color: var(--success);
+            display: none;
+            margin-top: 5px;
         }
 
-        /* STAGE COMPLETE STATE */
-        .stage-block.completed {
-            opacity: 0.5;
-            filter: grayscale(0.8);
-            border-color: var(--line-color);
-            background: rgba(30, 41, 59, 0.5);
-        }
-        
-        .stage-block.completed .stage-dot {
-            background: var(--success);
-            border-color: var(--success);
-            color: white;
-            box-shadow: 0 0 0 rgba(0,0,0,0); /* Remove glow */
-        }
-        
-        .stage-block.completed .stage-dot::after {
-            content: "\f00c"; /* FontAwesome Check */
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-        }
+        /* --- ROADMAP STYLES --- */
+        h1 { margin: 0; font-size: 48px; text-align: center; background: linear-gradient(90deg, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h2 { font-size: 24px; color: var(--text-muted); margin-bottom: 60px; font-weight: 400; text-align: center; }
+
+        .roadmap-container { max-width: 800px; width: 100%; position: relative; padding-left: 40px; }
+        .roadmap-line { position: absolute; left: 19px; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, var(--accent) 0%, var(--line-color) 10%, var(--line-color) 90%, var(--success) 100%); border-radius: 4px; z-index: 0; }
+
+        .stage-block { background: var(--card-bg); border: 1px solid var(--line-color); border-radius: 16px; padding: 30px; margin-bottom: 60px; position: relative; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5); transition: all 0.3s ease; }
+        .stage-dot { position: absolute; left: -53px; top: 30px; width: 34px; height: 34px; background: var(--bg-dark); border: 4px solid var(--accent); border-radius: 50%; z-index: 2; box-shadow: 0 0 15px var(--accent-glow); cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: grid; place-items: center; color: var(--bg-dark); font-size: 16px; }
+        .stage-dot:hover { transform: scale(1.2); border-color: var(--success); box-shadow: 0 0 20px rgba(74, 222, 128, 0.6); }
+
+        .stage-block.completed { opacity: 0.5; filter: grayscale(0.8); border-color: var(--line-color); background: rgba(30, 41, 59, 0.5); }
+        .stage-block.completed .stage-dot { background: var(--success); border-color: var(--success); color: white; box-shadow: 0 0 0 rgba(0,0,0,0); }
+        .stage-block.completed .stage-dot::after { content: "\f00c"; font-family: "Font Awesome 6 Free"; font-weight: 900; }
 
         .stage-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--line-color); padding-bottom: 15px; }
         .stage-title { font-size: 24px; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 10px; }
         .stage-meta { font-size: 14px; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 5px 12px; border-radius: 20px; }
 
-        /* --- CHECKLIST ITEMS (MICRO STEPS) --- */
+        /* Step Items */
         .step-list { list-style: none; padding: 0; margin: 0; }
-        
-        .step-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 15px;
-            margin-bottom: 15px;
-            padding: 12px;
-            background: rgba(15, 23, 42, 0.5);
-            border-radius: 8px;
-            border-left: 3px solid var(--line-color);
-            cursor: pointer; /* Indicates clickable */
-            transition: all 0.2s ease;
-            position: relative;
-        }
-        
+        .step-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px; padding: 12px; background: rgba(15, 23, 42, 0.5); border-radius: 8px; border-left: 3px solid var(--line-color); cursor: pointer; transition: all 0.2s ease; position: relative; }
         .step-item:hover { background: rgba(56, 189, 248, 0.05); }
-
         .step-item.critical { border-left-color: var(--warning); background: rgba(248, 113, 113, 0.05); }
         .step-item.action { border-left-color: var(--accent); }
         .step-item.decision { border-left-color: #a855f7; background: rgba(168, 85, 247, 0.05); }
-        
-        /* New Checkbox Styling */
-        .step-checkbox {
-            appearance: none;
-            min-width: 20px;
-            height: 20px;
-            border: 2px solid var(--text-muted);
-            border-radius: 4px;
-            margin-top: 3px;
-            cursor: pointer;
-            display: grid;
-            place-content: center;
-            transition: all 0.2s;
-        }
-        .step-checkbox::before {
-            content: "";
-            width: 10px;
-            height: 10px;
-            background: var(--bg-dark);
-            transform: scale(0);
-            transition: 0.2s transform ease-in-out;
-            box-shadow: inset 1em 1em var(--bg-dark);
-            transform-origin: center;
-            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-        }
-        
-        /* Completed State Styles */
-        .step-item.completed {
-            opacity: 0.5;
-            background: rgba(15, 23, 42, 0.3);
-            border-left-color: #475569;
-        }
-        .step-item.completed .step-title {
-            text-decoration: line-through;
-            color: #64748b;
-        }
-        .step-item.completed .step-desc {
-            color: #475569;
-        }
-        .step-item.completed .step-icon {
-            filter: grayscale(100%);
-            opacity: 0.5;
-        }
-        .step-item.completed .step-checkbox {
-            background-color: var(--success);
-            border-color: var(--success);
-        }
-        .step-item.completed .step-checkbox::before {
-            transform: scale(1);
-            background-color: white;
-        }
+
+        .step-checkbox { appearance: none; min-width: 20px; height: 20px; border: 2px solid var(--text-muted); border-radius: 4px; margin-top: 3px; cursor: pointer; display: grid; place-content: center; transition: all 0.2s; }
+        .step-checkbox::before { content: ""; width: 10px; height: 10px; background: var(--bg-dark); transform: scale(0); transition: 0.2s transform ease-in-out; box-shadow: inset 1em 1em var(--bg-dark); transform-origin: center; clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
+
+        /* Completed State */
+        .step-item.completed { opacity: 0.5; background: rgba(15, 23, 42, 0.3); border-left-color: #475569; }
+        .step-item.completed .step-title { text-decoration: line-through; color: #64748b; }
+        .step-item.completed .step-checkbox { background-color: var(--success); border-color: var(--success); }
+        .step-item.completed .step-checkbox::before { transform: scale(1); background-color: white; }
 
         .step-icon { margin-top: 3px; width: 20px; text-align: center; }
         .step-content { flex: 1; }
         .step-title { font-weight: 600; display: block; margin-bottom: 4px; font-size: 16px; }
         .step-desc { font-size: 14px; color: var(--text-muted); line-height: 1.4; transition: color 0.2s; }
 
-        /* --- THE GATES (TRANSITION LOGIC) --- */
-        .gate-block {
-            background: rgba(56, 189, 248, 0.05);
-            border: 2px dashed var(--accent);
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 20px;
-            position: relative;
-        }
-        .gate-label {
-            position: absolute;
-            top: -14px;
-            left: 20px;
-            background: var(--bg-dark);
-            color: var(--accent);
-            padding: 0 10px;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border: 1px solid var(--accent);
-            border-radius: 4px;
-        }
-        .gate-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 15px;
-            margin-top: 10px;
-        }
-        .gate-req {
-            background: var(--bg-dark);
-            padding: 10px;
-            border-radius: 6px;
-            text-align: center;
-            border: 1px solid var(--line-color);
-        }
+        /* Gate Styles */
+        .gate-block { background: rgba(56, 189, 248, 0.05); border: 2px dashed var(--accent); border-radius: 12px; padding: 20px; margin-top: 20px; position: relative; }
+        .gate-label { position: absolute; top: -14px; left: 20px; background: var(--bg-dark); color: var(--accent); padding: 0 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; border: 1px solid var(--accent); border-radius: 4px; }
+        .gate-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-top: 10px; }
+        .gate-req { background: var(--bg-dark); padding: 10px; border-radius: 6px; text-align: center; border: 1px solid var(--line-color); transition: all 0.3s; }
         .gate-req h4 { margin: 0 0 5px 0; font-size: 13px; color: var(--text-muted); }
         .gate-req p { margin: 0; font-size: 14px; font-weight: 600; }
         .gate-req.stop { border-color: var(--warning); color: var(--warning); }
-
-        /* --- ARROW DOWN --- */
-        .arrow-down {
-            text-align: center;
-            font-size: 24px;
-            color: var(--text-muted);
-            margin: -40px 0 20px 0;
-            z-index: 2;
-            position: relative;
-            background: var(--bg-dark); /* Mask line behind */
-            width: 40px;
-            height: 40px;
-            display: grid;
-            place-items: center;
-            border-radius: 50%;
-            border: 2px solid var(--line-color);
-            left: -20px; /* Adjust centering */
-        }
         
-        /* Reset Button */
-        .reset-btn {
-            margin-top: 40px;
-            background: transparent;
-            border: 1px solid var(--text-muted);
-            color: var(--text-muted);
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-family: 'Urbanist', sans-serif;
-            transition: all 0.2s;
-        }
-        .reset-btn:hover {
-            border-color: var(--warning);
-            color: var(--warning);
-        }
-        
-        /* Tooltip hint */
-        .click-hint {
-            position: absolute;
-            left: -160px;
-            top: 35px;
-            font-size: 12px;
-            color: var(--success);
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-        }
-        .stage-block:hover .click-hint { opacity: 1; }
+        /* Auto-Filled Gate */
+        .gate-req.autofilled { border-color: var(--success); color: var(--success); background: rgba(74, 222, 128, 0.1); }
+        .gate-req.autofilled::after { content: "\f00c"; font-family: "Font Awesome 6 Free"; margin-left: 5px; }
 
+        .arrow-down { text-align: center; font-size: 24px; color: var(--text-muted); margin: -40px 0 20px 0; z-index: 2; position: relative; background: var(--bg-dark); width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; border: 2px solid var(--line-color); left: -20px; }
+        
+        .reset-btn { margin-top: 40px; background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); padding: 8px 16px; border-radius: 4px; cursor: pointer; font-family: 'Urbanist', sans-serif; transition: all 0.2s; }
+        .reset-btn:hover { border-color: var(--warning); color: var(--warning); }
     </style>
 </head>
 <body>
@@ -375,14 +205,17 @@
                 <i class="fa-brands fa-hubspot" style="font-size: 24px;"></i> HubSpot Connection
             </div>
             <div>
-                <span class="status-badge status-offline">Offline Mode</span>
-                <span class="status-badge status-online">Connected</span>
+                <span class="status-badge status-offline" id="statusOffline">Offline Mode</span>
+                <span class="status-badge status-online" id="statusOnline">Connected</span>
             </div>
         </div>
         <div class="bar-controls">
-            <input type="text" class="hs-input" placeholder="Enter Deal ID (e.g. 1234567890)">
-            <input type="text" class="hs-input" placeholder="Or Search by Deal Name...">
-            <button class="hs-btn">Load Deal</button>
+            <input type="text" id="dealIdInput" class="hs-input" placeholder="Enter Deal ID (e.g. 1234567890)">
+            <button class="hs-btn" id="loadDealBtn">Load Deal</button>
+            <div class="spinner" id="loadingSpinner"></div>
+        </div>
+        <div class="deal-context" id="dealContext">
+            <strong>Active Deal:</strong> <span id="dealNameDisplay">...</span>
         </div>
     </div>
 
@@ -395,14 +228,14 @@
         <!-- STAGE 0: INITIALIZATION -->
         <div class="stage-block" id="stage-0">
             <div class="stage-dot" title="Click to complete stage"></div>
-            <div class="click-hint">Click dot to complete &rarr;</div>
             <div class="stage-header">
                 <div class="stage-title"><i class="fa-solid fa-flag-checkered"></i> 0. The Setup</div>
                 <div class="stage-meta">Pre-Deal Work</div>
             </div>
             
             <ul class="step-list">
-                <li class="step-item action">
+                <!-- MAPPED: Company Owner -->
+                <li class="step-item action" data-hs-obj="company" data-hs-prop="hubspot_owner_id">
                     <input type="checkbox" class="step-checkbox">
                     <div class="step-icon"><i class="fa-solid fa-user-plus" style="color: var(--accent);"></i></div>
                     <div class="step-content">
@@ -410,7 +243,8 @@
                         <span class="step-desc">Find the Champion. Ensure full name & title. Assign association label: <strong>'Champion'</strong>.</span>
                     </div>
                 </li>
-                <li class="step-item critical">
+                <!-- MAPPED: Company Name (Proxy for validating company record) -->
+                <li class="step-item critical" data-hs-obj="company" data-hs-prop="name">
                     <input type="checkbox" class="step-checkbox">
                     <div class="step-icon"><i class="fa-solid fa-building" style="color: var(--warning);"></i></div>
                     <div class="step-content">
@@ -449,23 +283,28 @@
                 <p style="margin: 0 0 10px 0; font-size: 14px;">Fill <strong>Pre Qualification (5/5)</strong> in Validation Tab.</p>
                 
                 <div class="gate-grid">
-                    <div class="gate-req">
+                    <!-- MAPPED: SLA Timeframe -->
+                    <div class="gate-req" data-gate-prop="sla_signature_timeframe_is_within_the_upcoming_5_months_">
                         <h4>SLA Timeframe</h4>
                         <p>Within 5 Mo?</p>
                     </div>
-                    <div class="gate-req">
+                    <!-- MAPPED: Budget -->
+                    <div class="gate-req" data-gate-prop="budget_availability_options">
                         <h4>Budget</h4>
                         <p>Viable Year</p>
                     </div>
-                    <div class="gate-req stop">
+                    <!-- MAPPED: Blockers (Negative Check) -->
+                    <div class="gate-req stop" data-gate-prop="identified_deal_blockers_will_not_withhold_contract_signature_within_the_next_4_months" data-gate-negative="true">
                         <h4>Blockers?</h4>
                         <p>Must be "No"</p>
                     </div>
-                    <div class="gate-req">
+                    <!-- MAPPED: Go-Live Date -->
+                    <div class="gate-req" data-gate-prop="estimated__go_live__date">
                         <h4>Go-Live</h4>
                         <p>Est. Qtr</p>
                     </div>
-                    <div class="gate-req">
+                    <!-- MAPPED: Materials -->
+                    <div class="gate-req" data-gate-prop="key_materials_sent_to_prospect">
                         <h4>Materials</h4>
                         <p>Pick at least one</p>
                     </div>
@@ -506,15 +345,18 @@
                 <div class="gate-label"><i class="fa-solid fa-lock"></i> Gate: Moving to Commitment</div>
                 <p style="margin: 0 0 10px 0; font-size: 14px;">Fill <strong>Pre Commitment Info (3/7)</strong>.</p>
                 <div class="gate-grid">
-                    <div class="gate-req">
+                    <!-- MAPPED: Doc Type -->
+                    <div class="gate-req" data-gate-prop="commitment__document_type_">
                         <h4>Doc Type</h4>
                         <p>Select</p>
                     </div>
-                    <div class="gate-req">
+                    <!-- MAPPED: Send Date -->
+                    <div class="gate-req" data-gate-prop="recent_commitment_send_date">
                         <h4>Send Date</h4>
                         <p>Mandatory</p>
                     </div>
-                    <div class="gate-req">
+                    <!-- MAPPED: IT Partner -->
+                    <div class="gate-req" data-gate-prop="site_it_partner">
                         <h4>IT Partner</h4>
                         <p>Identify</p>
                     </div>
@@ -537,31 +379,38 @@
                 <div class="gate-label"><i class="fa-solid fa-lock"></i> Gate: Moving to Setup</div>
                 <p style="margin: 0 0 10px 0; font-size: 14px;">Fill <strong>Commitment Info (8 req)</strong>.</p>
                 <div class="gate-grid">
-                    <div class="gate-req stop">
+                    <!-- MAPPED: Signed File -->
+                    <div class="gate-req stop" data-gate-prop="signed_commitment_file">
                         <h4>Signed File</h4>
                         <p>MUST Attach</p>
                     </div>
-                    <div class="gate-req">
+                    <!-- MAPPED: Sig Date -->
+                    <div class="gate-req" data-gate-prop="recent_commitment_sig__date">
                         <h4>Sig. Date</h4>
                         <p>Date</p>
                     </div>
-                    <div class="gate-req">
+                    <!-- MAPPED: Doc Type (Re-check) -->
+                    <div class="gate-req" data-gate-prop="commitment__document_type_">
                         <h4>Doc Type</h4>
                         <p>Check/Update</p>
                     </div>
-                    <div class="gate-req">
+                    <!-- MAPPED: Contract Term -->
+                    <div class="gate-req" data-gate-prop="contract_term__in_years_">
                         <h4>Contract Term</h4>
                         <p>36 Mo (Default)</p>
                     </div>
-                    <div class="gate-req">
+                    <!-- MAPPED: Approvals (Budget used as proxy) -->
+                    <div class="gate-req" data-gate-prop="budget_approval">
                         <h4>Approvals</h4>
                         <p>Asset/Budget</p>
                     </div>
-                    <div class="gate-req" style="grid-column: span 2;">
+                    <!-- MAPPED: PoC -->
+                    <div class="gate-req" style="grid-column: span 2;" data-gate-prop="poc_associated">
                         <h4>PoC Association</h4>
                         <p>Associate Contact &rarr; Auto-Yes</p>
                     </div>
-                    <div class="gate-req" style="grid-column: span 2; border-color: var(--accent);">
+                    <!-- MAPPED: Go-Live Date (Day) -->
+                    <div class="gate-req" style="grid-column: span 2; border-color: var(--accent);" data-gate-prop="estimated__go_live__date">
                         <h4 style="color: var(--accent);">Go-Live Date Change</h4>
                         <p>Specific Day in Month</p>
                     </div>
@@ -645,15 +494,18 @@
                 <!-- OPERATIONAL CHECK -->
                 <div style="margin-bottom: 10px; font-size: 12px; color: var(--accent); font-weight: 700; letter-spacing: 1px;">OPERATIONAL CHECK</div>
                 <div class="gate-grid" style="margin-bottom: 20px;">
-                    <div class="gate-req">
+                    <!-- MAPPED: Watches -->
+                    <div class="gate-req" data-gate-prop="number_of_watches">
                         <h4>Watches</h4>
                         <p>Quantity</p>
                     </div>
-                    <div class="gate-req">
+                    <!-- MAPPED: Activated -->
+                    <div class="gate-req" data-gate-prop="all_site_watches_have_been_activated_">
                         <h4>Activated</h4>
                         <p>Yes/Partially</p>
                     </div>
-                    <div class="gate-req stop">
+                    <!-- MAPPED: Training -->
+                    <div class="gate-req stop" data-gate-prop="site_staff_had_a_training_session_">
                         <h4>Training</h4>
                         <p>Must be Yes</p>
                     </div>
@@ -662,19 +514,23 @@
                 <!-- COMPLIANCE CHECK -->
                 <div style="margin-bottom: 10px; font-size: 12px; color: var(--accent); font-weight: 700; letter-spacing: 1px;">COMPLIANCE CHECK</div>
                 <div class="gate-grid">
-                    <div class="gate-req stop">
+                    <!-- MAPPED: IT Approval -->
+                    <div class="gate-req stop" data-gate-prop="it_approval_received">
                         <h4>IT & Security</h4>
                         <p>Must be YES</p>
                     </div>
-                    <div class="gate-req">
+                    <!-- MAPPED: GDPR -->
+                    <div class="gate-req" data-gate-prop="security_gdpr_approval">
                         <h4>GDPR</h4>
                         <p>Confirm 3 Qs</p>
                     </div>
-                    <div class="gate-req">
+                    <!-- MAPPED: Signed File (Re-check) -->
+                    <div class="gate-req" data-gate-prop="signed_commitment_file">
                         <h4>Signed File</h4>
                         <p>Verify</p>
                     </div>
-                    <div class="gate-req" style="grid-column: span 3; border-color: var(--accent);">
+                    <!-- MAPPED: Handover Date -->
+                    <div class="gate-req" style="grid-column: span 3; border-color: var(--accent);" data-gate-prop="handover_date__atp_fulfillment_">
                         <h4 style="color: var(--accent);">Live Related Dates</h4>
                         <p>Update Handover & Billing Start.<br>(Same date unless Trial)</p>
                     </div>
@@ -705,6 +561,13 @@
             const stages = document.querySelectorAll('.stage-block');
             const steps = document.querySelectorAll('.step-item');
             const resetBtn = document.getElementById('resetBtn');
+            const loadDealBtn = document.getElementById('loadDealBtn');
+            const dealIdInput = document.getElementById('dealIdInput');
+            const statusOffline = document.getElementById('statusOffline');
+            const statusOnline = document.getElementById('statusOnline');
+            const dealNameDisplay = document.getElementById('dealNameDisplay');
+            const dealContext = document.getElementById('dealContext');
+            const loadingSpinner = document.getElementById('loadingSpinner');
             
             // 1. Load saved state from LocalStorage
             const savedState = JSON.parse(localStorage.getItem('dealNavigatorStages')) || {};
@@ -766,6 +629,93 @@
                     });
                 }
             });
+
+            // --- HUBSPOT INTEGRATION LOGIC ---
+            loadDealBtn.addEventListener('click', async () => {
+                const dealId = dealIdInput.value.trim();
+                if (!dealId) return alert('Please enter a Deal ID');
+
+                // UI Loading State
+                loadDealBtn.disabled = true;
+                loadDealBtn.innerText = 'Fetching...';
+                loadingSpinner.style.display = 'block';
+
+                try {
+                    const response = await fetch(`/api/deal-status?dealId=${dealId}`);
+                    const data = await response.json();
+
+                    if (!response.ok) throw new Error(data.error || 'Failed to fetch');
+
+                    // Success!
+                    statusOffline.classList.add('hidden');
+                    statusOnline.classList.add('active');
+                    dealContext.style.display = 'block';
+                    dealNameDisplay.innerText = data.deal.dealname || 'Unknown Deal';
+
+                    // AUTO-CHECK LOGIC
+                    checkProperties(data);
+
+                } catch (err) {
+                    alert('Error: ' + err.message);
+                } finally {
+                    loadDealBtn.disabled = false;
+                    loadDealBtn.innerText = 'Load Deal';
+                    loadingSpinner.style.display = 'none';
+                }
+            });
+
+            function checkProperties(data) {
+                const deal = data.deal || {};
+                const company = data.company || {};
+
+                // Helper to check standard Yes/No or Existence
+                const isValid = (val) => val && val !== '' && val !== 'No' && val !== 'false';
+
+                // 1. MAP GATES (Small Squares)
+                document.querySelectorAll('.gate-req').forEach(gate => {
+                    const prop = gate.getAttribute('data-gate-prop');
+                    const isNegativeCheck = gate.getAttribute('data-gate-negative') === 'true';
+                    
+                    if (prop && deal[prop]) {
+                        let passed = false;
+                        
+                        // Negative checks (Blockers) - Valid if "No" or "False"
+                        if (isNegativeCheck) {
+                            if (deal[prop] === 'No' || deal[prop] === 'false') passed = true;
+                        } else {
+                            // Standard checks - Valid if populated and not "No"
+                            if (isValid(deal[prop])) passed = true;
+                        }
+
+                        if (passed) {
+                            gate.classList.add('autofilled');
+                        }
+                    }
+                });
+
+                // 2. MAP CHECKLIST ITEMS (LIs)
+                document.querySelectorAll('.step-item').forEach((step, index) => {
+                    const objType = step.getAttribute('data-hs-obj');
+                    const propName = step.getAttribute('data-hs-prop');
+                    
+                    let targetData = objType === 'company' ? company : deal;
+                    
+                    if (propName && targetData[propName]) {
+                        if (isValid(targetData[propName])) {
+                            // Programmatically click
+                            const checkbox = step.querySelector('.step-checkbox');
+                            if (!checkbox.checked) {
+                                checkbox.checked = true;
+                                step.classList.add('completed');
+                                savedChecks[index] = true;
+                            }
+                        }
+                    }
+                });
+                
+                // Save updates
+                localStorage.setItem('dealNavigatorChecks', JSON.stringify(savedChecks));
+            }
         });
     </script>
 
