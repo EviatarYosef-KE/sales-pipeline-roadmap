@@ -29,14 +29,90 @@
             font-family: 'Urbanist', sans-serif;
             color: var(--text-main);
             margin: 0;
-            padding: 40px;
+            padding: 40px 40px 100px 40px; /* Added bottom padding */
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
+        /* --- HUBSPOT CONNECT BAR (NEW) --- */
+        .hubspot-bar {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--line-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
+        }
+
+        .bar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--line-color);
+            padding-bottom: 15px;
+        }
+
+        .bar-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-badge {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .status-offline { background: rgba(148, 163, 184, 0.2); color: var(--text-muted); border: 1px solid var(--line-color); }
+        .status-online { background: rgba(74, 222, 128, 0.2); color: var(--success); border: 1px solid var(--success); display: none; }
+
+        .bar-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .hs-input {
+            background: var(--bg-dark);
+            border: 1px solid var(--line-color);
+            color: var(--text-main);
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-family: 'Urbanist', sans-serif;
+            font-size: 14px;
+            flex: 1;
+            transition: all 0.2s;
+        }
+        .hs-input:focus { outline: none; border-color: var(--accent); }
+
+        .hs-btn {
+            background: var(--accent);
+            color: var(--bg-dark);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .hs-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+        /* --- TYPOGRAPHY --- */
         h1 { margin: 0; font-size: 48px; text-align: center; background: linear-gradient(90deg, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        h2 { font-size: 24px; color: var(--text-muted); margin-bottom: 60px; font-weight: 400; text-align: center; }
+        h2 { font-size: 24px; color: var(--text-muted); margin-bottom: 40px; font-weight: 400; text-align: center; }
 
         /* --- THE ROADMAP CONTAINER --- */
         .roadmap-container {
@@ -292,8 +368,26 @@
 </head>
 <body>
 
+    <!-- HUBSPOT CONNECT BAR -->
+    <div class="hubspot-bar">
+        <div class="bar-header">
+            <div class="bar-title">
+                <i class="fa-brands fa-hubspot" style="font-size: 24px;"></i> HubSpot Connection
+            </div>
+            <div>
+                <span class="status-badge status-offline">Offline Mode</span>
+                <span class="status-badge status-online">Connected</span>
+            </div>
+        </div>
+        <div class="bar-controls">
+            <input type="text" class="hs-input" placeholder="Enter Deal ID (e.g. 1234567890)">
+            <input type="text" class="hs-input" placeholder="Or Search by Deal Name...">
+            <button class="hs-btn">Load Deal</button>
+        </div>
+    </div>
+
     <h1>The Deal Navigator</h1>
-    <h2>HubSpot Sales Pipeline 2.0</h2>
+    <h2>Sales Pipeline 2.0</h2>
 
     <div class="roadmap-container">
         <div class="roadmap-line"></div>
@@ -391,6 +485,7 @@
 
             <ul class="step-list">
                 <li class="step-item action">
+                    <input type="checkbox" class="step-checkbox">
                     <div class="step-icon"><i class="fa-solid fa-water-ladder" style="color: var(--accent);"></i></div>
                     <div class="step-content">
                         <span class="step-title">Update Line Items (Pools)</span>
@@ -398,6 +493,7 @@
                     </div>
                 </li>
                 <li class="step-item critical">
+                    <input type="checkbox" class="step-checkbox">
                     <div class="step-icon"><i class="fa-solid fa-clipboard-check" style="color: var(--warning);"></i></div>
                     <div class="step-content">
                         <span class="step-title">Check Monitoring Specification</span>
@@ -485,6 +581,7 @@
 
             <ul class="step-list">
                 <li class="step-item decision">
+                    <input type="checkbox" class="step-checkbox">
                     <div class="step-icon"><i class="fa-solid fa-code-branch" style="color: #a855f7;"></i></div>
                     <div class="step-content">
                         <span class="step-title">Path Decision: Test Results</span>
@@ -509,6 +606,7 @@
             
             <ul class="step-list">
                 <li class="step-item action">
+                    <input type="checkbox" class="step-checkbox">
                     <div class="step-icon"><i class="fa-solid fa-info-circle" style="color: var(--accent);"></i></div>
                     <div class="step-content">
                         <span class="step-title">Testing Period</span>
@@ -531,6 +629,7 @@
             <!-- CRITICAL STEP FOR LINE ITEMS -->
             <ul class="step-list">
                 <li class="step-item critical">
+                    <input type="checkbox" class="step-checkbox">
                     <div class="step-icon"><i class="fa-solid fa-file-invoice-dollar" style="color: var(--warning);"></i></div>
                     <div class="step-content">
                         <span class="step-title">Update Line Items (Final Billing Dates)</span>
@@ -604,46 +703,66 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const stages = document.querySelectorAll('.stage-block');
+            const steps = document.querySelectorAll('.step-item');
             const resetBtn = document.getElementById('resetBtn');
             
             // 1. Load saved state from LocalStorage
             const savedState = JSON.parse(localStorage.getItem('dealNavigatorStages')) || {};
+            const savedChecks = JSON.parse(localStorage.getItem('dealNavigatorChecks')) || {};
 
+            // Restore Stage State (Big Dots)
             stages.forEach((stage) => {
                 const stageId = stage.id;
-                const dot = stage.querySelector('.stage-dot');
-                
-                // Restore state if saved
                 if (savedState[stageId]) {
                     stage.classList.add('completed');
                 }
-
-                // 2. Click Logic for Stage Dot
+                const dot = stage.querySelector('.stage-dot');
                 if(dot) {
                     dot.addEventListener('click', (e) => {
-                        e.stopPropagation(); // Prevent bubbling if necessary
-                        
+                        e.stopPropagation();
                         const isCompleted = stage.classList.toggle('completed');
-                        
-                        // Update state object
                         if (isCompleted) {
                             savedState[stageId] = true;
                         } else {
                             delete savedState[stageId];
                         }
-                        
-                        // Save to LocalStorage
                         localStorage.setItem('dealNavigatorStages', JSON.stringify(savedState));
                     });
                 }
             });
 
-            // 3. Reset Button Logic
+            // Restore Checkbox State (Small items)
+            steps.forEach((step, index) => {
+                const checkbox = step.querySelector('.step-checkbox');
+                if (savedChecks[index]) {
+                    checkbox.checked = true;
+                    step.classList.add('completed');
+                }
+
+                step.addEventListener('click', (e) => {
+                    if (e.target !== checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                    }
+                    if (checkbox.checked) {
+                        step.classList.add('completed');
+                        savedChecks[index] = true;
+                    } else {
+                        step.classList.remove('completed');
+                        delete savedChecks[index];
+                    }
+                    localStorage.setItem('dealNavigatorChecks', JSON.stringify(savedChecks));
+                });
+            });
+
+            // Reset Button Logic
             resetBtn.addEventListener('click', () => {
                 if(confirm('Are you sure you want to clear all progress?')) {
                     localStorage.removeItem('dealNavigatorStages');
-                    stages.forEach(stage => {
-                        stage.classList.remove('completed');
+                    localStorage.removeItem('dealNavigatorChecks');
+                    stages.forEach(stage => stage.classList.remove('completed'));
+                    steps.forEach(step => {
+                        step.classList.remove('completed');
+                        step.querySelector('.step-checkbox').checked = false;
                     });
                 }
             });
