@@ -1,10 +1,13 @@
 const hubspot = require('@hubspot/api-client');
 
-// Initialize the HubSpot Client
+// Initialize outside handler to reuse connection in warm lambdas for performance
 const hubspotClient = new hubspot.Client({ accessToken: process.env.HUBSPOT_ACCESS_TOKEN });
 
 export default async function handler(req, res) {
-    // 1. Get the Deal ID from the website's request
+    // 1. Cache Control: Cache success responses for 60 seconds to save HubSpot API limits
+    // 's-maxage' tells Vercel's CDN to cache it; 'stale-while-revalidate' keeps it snappy.
+    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=30');
+
     const { dealId } = req.query;
 
     if (!dealId) {
@@ -12,9 +15,9 @@ export default async function handler(req, res) {
     }
 
     try {
-        // 2. Define exactly which Deal Properties we need (From your CSV)
+        // 2. Define exactly which Deal Properties we need
         const dealProperties = [
-            "dealname", "amount", "dealstage", // Basics
+            "dealname", "amount", "dealstage", 
             "sla_signature_timeframe_is_within_the_upcoming_5_months_",
             "budget_availability_options",
             "identified_deal_blockers_will_not_withhold_contract_signature_within_the_next_4_months",
@@ -41,44 +44,58 @@ export default async function handler(req, res) {
             "contracted_billing_start_date"
         ];
 
-        // 3. Fetch the Deal Data
-        const dealResponse = await hubspotClient.crm.deals.basicApi.getById(dealId, dealProperties);
+        // 3. Optimization: Fetch Deal AND Associated Company IDs in a SINGLE call
+        // The 4th argument ["companies"] specifically asks for association IDs
+        const dealResponse = await hubspotClient.crm.deals.basicApi.getById(
+            dealId, 
+            dealProperties, 
+            undefined, 
+            ["companies"] 
+        );
 
-        // 4. Find the Associated Company
-        let companyResponse = null;
-        try {
-            // Get association to company
-            const associations = await hubspotClient.crm.deals.associationsApi.getAll(dealId, 'companies');
+        const dealData = dealResponse.properties;
+        let companyData = null;
+
+        // 4. Handle Company Association safely
+        // Structure is usually: { "companies": { "results": [ { "id": "123", ... } ] } }
+        const associatedCompanies = dealResponse.associations?.companies?.results;
+
+        if (associatedCompanies && associatedCompanies.length > 0) {
+            const companyId = associatedCompanies[0].id;
             
-            if (associations.results && associations.results.length > 0) {
-                const companyId = associations.results[0].id;
-                
-                // Define Company Properties needed (From your CSV)
-                const companyProperties = [
-                    "name", 
-                    "hubspot_owner_id", 
-                    "customer_potential_sites", 
-                    "customer_potential_pools"
-                ];
+            const companyProperties = [
+                "name", 
+                "hubspot_owner_id", 
+                "customer_potential_sites", 
+                "customer_potential_pools"
+            ];
 
-                // Fetch Company Data
-                companyResponse = await hubspotClient.crm.companies.basicApi.getById(companyId, companyProperties);
+            try {
+                // Fetch Company Data if an ID exists
+                const companyResponse = await hubspotClient.crm.companies.basicApi.getById(companyId, companyProperties);
+                companyData = companyResponse.properties;
+            } catch (err) {
+                console.warn(`Warning: Found company ID ${companyId} but failed to fetch details.`, err.message);
+                // We do NOT throw here, so the Deal data still loads even if Company fails
             }
-        } catch (err) {
-            console.log("No company association found or error fetching company.");
         }
 
-        // 5. Send the combined data back to the frontend
+        // 5. Send combined data
         res.status(200).json({
-            deal: dealResponse.properties,
-            company: companyResponse ? companyResponse.properties : null
+            deal: dealData,
+            company: companyData
         });
 
     } catch (e) {
-        console.error(e);
-        const message = e.message === 'HTTP request failed'
-            ? JSON.stringify(e.response, null, 2)
-            : e.message;
-        res.status(500).json({ error: message });
+        console.error("API Error:", e);
+        
+        // Intelligent Error Response
+        const errorMessage = e.body && e.body.message 
+            ? e.body.message 
+            : (e.message || 'Internal Server Error');
+
+        const status = e.code === 404 ? 404 : 500;
+        
+        res.status(status).json({ error: errorMessage });
     }
 }
