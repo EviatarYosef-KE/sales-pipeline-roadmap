@@ -262,7 +262,7 @@
     </div>
 
     <h1>The Deal Navigator</h1>
-    <h2>Sales Pipeline 2.0</h2>
+    <h2>Select Deal Name 2.0</h2>
 
     <div class="roadmap-container">
         <div class="roadmap-line"></div>
@@ -297,7 +297,7 @@
                         </span>
                     </div>
                 </li>
-                <li class="step-item action">
+                <li class="step-item action" data-hs-obj="deal" data-hs-prop="dealname">
                     <input type="checkbox" class="step-checkbox">
                     <div class="step-icon"><i class="fa-solid fa-plus-circle" style="color: var(--success);"></i></div>
                     <div class="step-content">
@@ -330,7 +330,7 @@
                         <h4>Budget</h4>
                         <p>Viable Year</p>
                     </div>
-                    <div class="gate-req stop" data-gate-prop="identified_deal_blockers_will_not_withhold_contract_signature_within_the_next_4_months" data-gate-negative="true">
+                    <div class="gate-req" data-gate-prop="identified_deal_blockers_will_not_withhold_contract_signature_within_the_next_4_months" data-gate-negative="true">
                         <h4>Blockers?</h4>
                         <p>Must be "No"</p>
                     </div>
@@ -699,7 +699,6 @@
                     };
 
                     if (rawStage) {
-                        // If mapping found use it, otherwise use raw stage
                         const finalStageName = stageDictionary[rawStage] || rawStage;
                         
                         dealStageDisplay.innerText = finalStageName;
