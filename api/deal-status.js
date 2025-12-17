@@ -28,7 +28,7 @@ export default async function handler(req, res) {
             "site_it_partner",
             "signed_commitment_file",
             "contract_file",
-            "recent_commitment_sig__date",
+            "recent_commitment_signature_date",
             "poc_associated",
             "asset_owner_approval___when_applicable___cloned_",
             "budget_approval",
