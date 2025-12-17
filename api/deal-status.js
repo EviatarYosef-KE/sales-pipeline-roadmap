@@ -55,6 +55,7 @@ export default async function handler(req, res) {
 
         const dealData = dealResponse.properties;
         let companyData = null;
+        let ownerData = null;
 
         // 4. Handle Company Association safely
         // Structure is usually: { "companies": { "results": [ { "id": "123", ... } ] } }
@@ -74,16 +75,32 @@ export default async function handler(req, res) {
                 // Fetch Company Data if an ID exists
                 const companyResponse = await hubspotClient.crm.companies.basicApi.getById(companyId, companyProperties);
                 companyData = companyResponse.properties;
+
+                // 5. Fetch Owner Details if owner ID exists
+                if (companyData.hubspot_owner_id) {
+                    try {
+                        const ownerResponse = await hubspotClient.crm.owners.basicApi.getById(companyData.hubspot_owner_id);
+                        ownerData = {
+                            firstName: ownerResponse.firstName,
+                            lastName: ownerResponse.lastName,
+                            email: ownerResponse.email
+                        };
+                    } catch (ownerErr) {
+                        console.warn(`Warning: Found owner ID ${companyData.hubspot_owner_id} but failed to fetch details.`, ownerErr.message);
+                        // Continue without owner data
+                    }
+                }
             } catch (err) {
                 console.warn(`Warning: Found company ID ${companyId} but failed to fetch details.`, err.message);
                 // We do NOT throw here, so the Deal data still loads even if Company fails
             }
         }
 
-        // 5. Send combined data
+        // 6. Send combined data
         res.status(200).json({
             deal: dealData,
-            company: companyData
+            company: companyData,
+            owner: ownerData
         });
 
     } catch (e) {
