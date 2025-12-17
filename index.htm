@@ -441,7 +441,7 @@
                 <div class="gate-label"><i class="fa-solid fa-lock"></i> Gate: Moving to Commitment</div>
                 <p style="margin: 0 0 10px 0; font-size: 14px;">Fill <strong>Pre Commitment Info (3/7)</strong>.</p>
                 <div class="gate-grid">
-                    <div class="gate-req" data-gate-prop="commitment__document_type_">
+                    <div class="gate-req" data-gate-prop="commitment__document_type">
                         <h4>Doc Type</h4>
                         <p>Select</p>
                     </div>
@@ -479,7 +479,7 @@
                         <h4>Sig. Date</h4>
                         <p>Date</p>
                     </div>
-                    <div class="gate-req" data-gate-prop="commitment__document_type_">
+                    <div class="gate-req" data-gate-prop="commitment__document_type">
                         <h4>Doc Type</h4>
                         <p>Check/Update</p>
                     </div>
@@ -875,29 +875,48 @@
                     
                     const val = deal[prop];
                     
-                    if (val !== undefined) {
+                    if (val !== undefined && val !== null) {
                         let passed = false;
+                        let displayValue = val;
+                        
                         if (isNegativeCheck) {
-                            // NEW: Check for "N/A", "No", or "false" explicitly
+                            // Check for "N/A", "No", or "false" explicitly
                             if (val === 'No' || val === 'false' || val === 'N/A') passed = true;
                         } else {
-                            if (isValid(val)) passed = true;
+                            // Special handling for document type (multiple checkboxes)
+                            if (prop === 'commitment__document_type') {
+                                // Could be array or semicolon-separated string
+                                if (Array.isArray(val) && val.length > 0) {
+                                    passed = true;
+                                    displayValue = val.join(', ');
+                                } else if (typeof val === 'string' && val.includes(';')) {
+                                    passed = true;
+                                    displayValue = val.split(';').join(', ');
+                                } else if (isValid(val)) {
+                                    passed = true;
+                                    displayValue = val;
+                                }
+                            } else {
+                                if (isValid(val)) passed = true;
+                            }
                         }
 
                         if (passed) {
                             gate.classList.add('autofilled');
+                            gate.classList.remove('stop');
                             
-                            // Special handling for document type - show the actual value
-                            if (prop === 'commitment__document_type_') {
+                            // Show the actual value for document type
+                            if (prop === 'commitment__document_type') {
                                 const valueDisplay = gate.querySelector('p');
                                 if (valueDisplay) {
-                                    valueDisplay.innerText = val;
+                                    valueDisplay.innerText = displayValue;
                                 }
                             }
                         } else {
-                            // If document type is empty/invalid, show in red
-                            if (prop === 'commitment__document_type_') {
+                            // Mark as missing for document type
+                            if (prop === 'commitment__document_type') {
                                 gate.classList.add('stop');
+                                gate.classList.remove('autofilled');
                                 const valueDisplay = gate.querySelector('p');
                                 if (valueDisplay) {
                                     valueDisplay.innerText = 'NOT SET';
@@ -905,9 +924,10 @@
                             }
                         }
                     } else {
-                        // Value is undefined - mark as missing for document type
-                        if (prop === 'commitment__document_type_') {
+                        // Value is undefined/null - mark as missing for document type
+                        if (prop === 'commitment__document_type') {
                             gate.classList.add('stop');
+                            gate.classList.remove('autofilled');
                             const valueDisplay = gate.querySelector('p');
                             if (valueDisplay) {
                                 valueDisplay.innerText = 'NOT SET';
