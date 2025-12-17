@@ -165,14 +165,14 @@
         }
         
         .info-badge.has-data {
-            background: rgba(74, 222, 128, 0.15);
-            border: 1px solid var(--success);
+            background: rgba(74, 222, 128, 0.08);
+            border: 1px solid rgba(74, 222, 128, 0.3);
             color: var(--success);
         }
         
         .info-badge.missing-data {
-            background: rgba(248, 113, 113, 0.15);
-            border: 1px solid var(--warning);
+            background: rgba(248, 113, 113, 0.08);
+            border: 1px solid rgba(248, 113, 113, 0.3);
             color: var(--warning);
         }
         
@@ -229,17 +229,20 @@
         .step-desc { font-size: 14px; color: var(--text-muted); line-height: 1.4; transition: color 0.2s; }
 
         /* Gate Styles */
-        .gate-block { background: rgba(56, 189, 248, 0.05); border: 2px dashed var(--accent); border-radius: 12px; padding: 20px; margin-top: 20px; position: relative; }
+        .gate-block { background: rgba(56, 189, 248, 0.03); border: 2px dashed rgba(56, 189, 248, 0.2); border-radius: 12px; padding: 20px; margin-top: 20px; position: relative; }
         .gate-label { position: absolute; top: -14px; left: 20px; background: var(--bg-dark); color: var(--accent); padding: 0 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; border: 1px solid var(--accent); border-radius: 4px; }
-        .gate-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-top: 10px; }
-        .gate-req { background: var(--bg-dark); padding: 10px; border-radius: 6px; text-align: center; border: 1px solid var(--line-color); transition: all 0.3s; }
-        .gate-req h4 { margin: 0 0 5px 0; font-size: 13px; color: var(--text-muted); }
-        .gate-req p { margin: 0; font-size: 14px; font-weight: 600; }
-        .gate-req.stop { border-color: var(--warning); color: var(--warning); }
+        .gate-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 10px; }
+        .gate-req { background: var(--bg-dark); padding: 15px; border-radius: 8px; text-align: center; border: 1px solid var(--line-color); transition: all 0.3s; }
+        .gate-req h4 { margin: 0 0 8px 0; font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        .gate-req p { margin: 0; font-size: 13px; font-weight: 600; color: var(--text-main); }
+        .gate-req.stop { border-color: var(--warning); background: rgba(248, 113, 113, 0.05); }
+        .gate-req.stop h4 { color: var(--warning); }
+        .gate-req.stop p { color: var(--warning); }
         
         /* Auto-Filled Gate */
-        .gate-req.autofilled { border-color: var(--success); color: var(--success); background: rgba(74, 222, 128, 0.1); }
-        .gate-req.autofilled::after { content: "\f00c"; font-family: "Font Awesome 6 Free"; margin-left: 5px; }
+        .gate-req.autofilled { border-color: var(--success); background: rgba(74, 222, 128, 0.05); }
+        .gate-req.autofilled h4 { color: var(--success); }
+        .gate-req.autofilled p { color: var(--success); font-size: 14px; }
 
         .arrow-down { text-align: center; font-size: 24px; color: var(--text-muted); margin: -40px 0 20px 0; z-index: 2; position: relative; background: var(--bg-dark); width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; border: 2px solid var(--line-color); left: -20px; }
         
