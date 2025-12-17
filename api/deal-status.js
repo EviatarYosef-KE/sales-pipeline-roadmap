@@ -30,6 +30,7 @@ export default async function handler(req, res) {
             "contract_file",
             "recent_commitment_signature_date",
             "poc_associated",
+            "onsite_poc_sync",
             "asset_owner_approval___when_applicable___cloned_",
             "budget_approval",
             "contract_term__in_years_",
