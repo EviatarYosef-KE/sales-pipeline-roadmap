@@ -90,24 +90,14 @@ export default async function handler(req, res) {
                             throw new Error('Owner ID is empty after cleaning');
                         }
                         
-                        // Use direct API request to get owner details
-                        const ownerResponse = await hubspotClient.apiRequest({
-                            method: 'GET',
-                            path: `/crm/v3/owners/${cleanOwnerId}`
-                        });
-                        
-                        console.log('Full owner response:', JSON.stringify(ownerResponse, null, 2));
-                        
-                        // The actual owner data might be in different locations
-                        const ownerBody = ownerResponse.body || ownerResponse;
-                        const ownerInfo = ownerBody.results?.[0] || ownerBody;
-                        
-                        console.log('Extracted owner info:', JSON.stringify(ownerInfo, null, 2));
+                        // Correct SDK method: crm.owners.ownersApi.getById
+                        const ownerResponse = await hubspotClient.crm.owners.ownersApi.getById(parseInt(cleanOwnerId));
+                        console.log('Owner response received:', JSON.stringify(ownerResponse, null, 2));
                         
                         ownerData = {
-                            firstName: ownerInfo.firstName || ownerInfo.first_name,
-                            lastName: ownerInfo.lastName || ownerInfo.last_name,
-                            email: ownerInfo.email
+                            firstName: ownerResponse.firstName,
+                            lastName: ownerResponse.lastName,
+                            email: ownerResponse.email
                         };
                         console.log('Owner data structured:', ownerData);
                     } catch (ownerErr) {
