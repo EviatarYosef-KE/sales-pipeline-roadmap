@@ -912,6 +912,21 @@
                                     valueDisplay.innerText = displayValue;
                                 }
                             }
+                            
+                            // Show file count for contract_file
+                            if (prop === 'contract_file') {
+                                const valueDisplay = gate.querySelector('p');
+                                if (valueDisplay && val) {
+                                    // Check if it's a URL string or array
+                                    let fileCount = 1;
+                                    if (typeof val === 'string' && val.includes(',')) {
+                                        fileCount = val.split(',').length;
+                                    } else if (Array.isArray(val)) {
+                                        fileCount = val.length;
+                                    }
+                                    valueDisplay.innerText = `${fileCount} File${fileCount > 1 ? 's' : ''}`;
+                                }
+                            }
                         } else {
                             // Mark as missing for document type
                             if (prop === 'commitment__document_type') {
