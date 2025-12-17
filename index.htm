@@ -152,6 +152,41 @@
             vertical-align: middle;
         }
 
+        /* --- INFO BADGES (Company Data Display) --- */
+        .info-badge {
+            display: none; /* Hidden by default */
+            margin-left: auto;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        
+        .info-badge.has-data {
+            background: rgba(74, 222, 128, 0.15);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+        
+        .info-badge.missing-data {
+            background: rgba(248, 113, 113, 0.15);
+            border: 1px solid var(--warning);
+            color: var(--warning);
+        }
+        
+        .info-badge i {
+            margin-right: 5px;
+        }
+        
+        .info-badge.missing-data::after {
+            content: " - REQUIRED";
+            font-weight: 700;
+            font-size: 10px;
+            letter-spacing: 0.5px;
+        }
+
         /* --- ROADMAP STYLES --- */
         h1 { margin: 0; font-size: 48px; text-align: center; background: linear-gradient(90deg, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         h2 { font-size: 24px; color: var(--text-muted); margin-bottom: 60px; font-weight: 400; text-align: center; }
@@ -284,7 +319,7 @@
                         <span class="step-desc">Find the Champion. Ensure full name & title. Assign association label: <strong>'Champion'</strong>.</span>
                     </div>
                 </li>
-                <li class="step-item critical" data-hs-obj="company" data-hs-prop="name">
+                <li class="step-item critical" data-hs-obj="company" data-hs-prop="name" id="company-name-item">
                     <input type="checkbox" class="step-checkbox">
                     <div class="step-icon"><i class="fa-solid fa-building" style="color: var(--warning);"></i></div>
                     <div class="step-content">
@@ -296,6 +331,34 @@
                             <br><br><strong style="color: var(--accent);">Note:</strong> This happens <strong>once per company</strong> (1st deal only). For existing companies, skip straight to "Create Deal".
                         </span>
                     </div>
+                    <span class="info-badge" id="companyNameBadge">
+                        <i class="fa-solid fa-building"></i>
+                        <span id="companyNameText">...</span>
+                    </span>
+                </li>
+                <li class="step-item critical" data-hs-obj="company" data-hs-prop="hubspot_owner_id" id="company-owner-item">
+                    <input type="checkbox" class="step-checkbox">
+                    <div class="step-icon"><i class="fa-solid fa-user-tie" style="color: var(--warning);"></i></div>
+                    <div class="step-content">
+                        <span class="step-title">Company Owner Assignment</span>
+                        <span class="step-desc">Verify the company owner is correctly assigned.</span>
+                    </div>
+                    <span class="info-badge" id="companyOwnerBadge">
+                        <i class="fa-solid fa-user-tie"></i>
+                        <span id="companyOwnerText">...</span>
+                    </span>
+                </li>
+                <li class="step-item critical" data-hs-obj="company" data-hs-prop="customer_potential_sites" id="company-pools-sites-item">
+                    <input type="checkbox" class="step-checkbox">
+                    <div class="step-icon"><i class="fa-solid fa-water-ladder" style="color: var(--warning);"></i></div>
+                    <div class="step-content">
+                        <span class="step-title">Potential Sites & Pools</span>
+                        <span class="step-desc">Enter estimated number of sites and pools for this customer.</span>
+                    </div>
+                    <span class="info-badge" id="companySitesPoolsBadge">
+                        <i class="fa-solid fa-chart-simple"></i>
+                        <span id="companySitesPoolsText">...</span>
+                    </span>
                 </li>
                 <li class="step-item action" data-hs-obj="deal" data-hs-prop="dealname">
                     <input type="checkbox" class="step-checkbox">
@@ -582,6 +645,14 @@
             const loadingSpinner = document.getElementById('loadingSpinner');
             const toast = document.getElementById('toast');
 
+            // Company Info Badge Elements
+            const companyNameBadge = document.getElementById('companyNameBadge');
+            const companyNameText = document.getElementById('companyNameText');
+            const companyOwnerBadge = document.getElementById('companyOwnerBadge');
+            const companyOwnerText = document.getElementById('companyOwnerText');
+            const companySitesPoolsBadge = document.getElementById('companySitesPoolsBadge');
+            const companySitesPoolsText = document.getElementById('companySitesPoolsText');
+
             // State Management
             const STATE_KEY = 'dealNavigatorStages';
             const CHECK_KEY = 'dealNavigatorChecks';
@@ -716,7 +787,10 @@
                     
                     showToast('Deal Loaded Successfully', 'success');
                     
-                    // AUTO-CHECK LOGIC
+                    // 3. Display Company Info Badges
+                    displayCompanyInfo(data);
+                    
+                    // 4. AUTO-CHECK LOGIC
                     checkProperties(data);
 
                 } catch (err) {
@@ -733,6 +807,57 @@
                 loadDealBtn.disabled = isLoading;
                 loadDealBtn.innerText = isLoading ? 'Fetching...' : 'Load Deal';
                 loadingSpinner.style.display = isLoading ? 'block' : 'none';
+            }
+
+            function displayCompanyInfo(data) {
+                const company = data.company;
+                const owner = data.owner;
+
+                // A. Company Name Badge
+                if (company && company.name) {
+                    companyNameText.innerText = company.name;
+                    companyNameBadge.classList.remove('missing-data');
+                    companyNameBadge.classList.add('has-data');
+                } else {
+                    companyNameText.innerText = 'Not Set';
+                    companyNameBadge.classList.remove('has-data');
+                    companyNameBadge.classList.add('missing-data');
+                }
+                companyNameBadge.style.display = 'flex';
+
+                // B. Company Owner Badge
+                if (owner && owner.firstName && owner.lastName) {
+                    companyOwnerText.innerText = `${owner.firstName} ${owner.lastName}`;
+                    companyOwnerBadge.classList.remove('missing-data');
+                    companyOwnerBadge.classList.add('has-data');
+                } else if (company && company.hubspot_owner_id) {
+                    // Fallback to ID if we couldn't fetch owner details
+                    companyOwnerText.innerText = `ID: ${company.hubspot_owner_id}`;
+                    companyOwnerBadge.classList.remove('missing-data');
+                    companyOwnerBadge.classList.add('has-data');
+                } else {
+                    companyOwnerText.innerText = 'Not Assigned';
+                    companyOwnerBadge.classList.remove('has-data');
+                    companyOwnerBadge.classList.add('missing-data');
+                }
+                companyOwnerBadge.style.display = 'flex';
+
+                // C. Sites & Pools Badge
+                const sites = company?.customer_potential_sites;
+                const pools = company?.customer_potential_pools;
+                
+                if (sites || pools) {
+                    const sitesDisplay = sites || '0';
+                    const poolsDisplay = pools || '0';
+                    companySitesPoolsText.innerText = `Sites: ${sitesDisplay} | Pools: ${poolsDisplay}`;
+                    companySitesPoolsBadge.classList.remove('missing-data');
+                    companySitesPoolsBadge.classList.add('has-data');
+                } else {
+                    companySitesPoolsText.innerText = 'Not Set';
+                    companySitesPoolsBadge.classList.remove('has-data');
+                    companySitesPoolsBadge.classList.add('missing-data');
+                }
+                companySitesPoolsBadge.style.display = 'flex';
             }
 
             function checkProperties(data) {
