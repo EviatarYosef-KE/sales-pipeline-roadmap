@@ -79,18 +79,30 @@ export default async function handler(req, res) {
                 // 5. Fetch Owner Details if owner ID exists
                 if (companyData.hubspot_owner_id) {
                     try {
-                        console.log('Attempting to fetch owner with ID:', companyData.hubspot_owner_id);
-                        const ownerResponse = await hubspotClient.crm.owners.basicApi.getById(companyData.hubspot_owner_id);
-                        console.log('Owner response received:', ownerResponse);
+                        // Clean the owner ID - remove any non-numeric characters
+                        const rawOwnerId = String(companyData.hubspot_owner_id);
+                        const cleanOwnerId = rawOwnerId.replace(/[^0-9]/g, '');
+                        
+                        console.log('Raw owner ID from HubSpot:', rawOwnerId);
+                        console.log('Cleaned owner ID:', cleanOwnerId);
+                        
+                        if (!cleanOwnerId) {
+                            throw new Error('Owner ID is empty after cleaning');
+                        }
+                        
+                        const ownerResponse = await hubspotClient.crm.owners.basicApi.getById(cleanOwnerId);
+                        console.log('Owner response received:', JSON.stringify(ownerResponse, null, 2));
+                        
                         ownerData = {
-                            firstName: ownerResponse.firstName,
-                            lastName: ownerResponse.lastName,
+                            firstName: ownerResponse.firstName || ownerResponse.first_name,
+                            lastName: ownerResponse.lastName || ownerResponse.last_name,
                             email: ownerResponse.email
                         };
                         console.log('Owner data structured:', ownerData);
                     } catch (ownerErr) {
                         console.error('Owner lookup failed:', ownerErr);
-                        console.error('Error details:', ownerErr.message, ownerErr.body);
+                        console.error('Error status:', ownerErr.statusCode || ownerErr.status);
+                        console.error('Error body:', JSON.stringify(ownerErr.body || ownerErr.message, null, 2));
                         // Continue without owner data
                     }
                 }
