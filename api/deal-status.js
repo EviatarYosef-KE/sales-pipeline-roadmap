@@ -95,13 +95,19 @@ export default async function handler(req, res) {
                             method: 'GET',
                             path: `/crm/v3/owners/${cleanOwnerId}`
                         });
-                        console.log('Owner response received:', JSON.stringify(ownerResponse, null, 2));
                         
-                        const ownerBody = ownerResponse.body;
+                        console.log('Full owner response:', JSON.stringify(ownerResponse, null, 2));
+                        
+                        // The actual owner data might be in different locations
+                        const ownerBody = ownerResponse.body || ownerResponse;
+                        const ownerInfo = ownerBody.results?.[0] || ownerBody;
+                        
+                        console.log('Extracted owner info:', JSON.stringify(ownerInfo, null, 2));
+                        
                         ownerData = {
-                            firstName: ownerBody.firstName || ownerBody.first_name,
-                            lastName: ownerBody.lastName || ownerBody.last_name,
-                            email: ownerBody.email
+                            firstName: ownerInfo.firstName || ownerInfo.first_name,
+                            lastName: ownerInfo.lastName || ownerInfo.last_name,
+                            email: ownerInfo.email
                         };
                         console.log('Owner data structured:', ownerData);
                     } catch (ownerErr) {
