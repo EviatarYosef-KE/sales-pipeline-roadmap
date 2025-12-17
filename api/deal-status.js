@@ -1,4 +1,3 @@
-// Force rebuild
 const hubspot = require('@hubspot/api-client');
 
 // Initialize outside handler to reuse connection in warm lambdas for performance
@@ -91,7 +90,8 @@ export default async function handler(req, res) {
                             throw new Error('Owner ID is empty after cleaning');
                         }
                         
-                        const ownerResponse = await hubspotClient.crm.owners.basicApi.getById(cleanOwnerId);
+                        // Correct API path for owners
+                        const ownerResponse = await hubspotClient.crm.owners.getById(cleanOwnerId);
                         console.log('Owner response received:', JSON.stringify(ownerResponse, null, 2));
                         
                         ownerData = {
