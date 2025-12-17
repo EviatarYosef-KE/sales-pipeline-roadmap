@@ -886,6 +886,32 @@
 
                         if (passed) {
                             gate.classList.add('autofilled');
+                            
+                            // Special handling for document type - show the actual value
+                            if (prop === 'commitment__document_type_') {
+                                const valueDisplay = gate.querySelector('p');
+                                if (valueDisplay) {
+                                    valueDisplay.innerText = val;
+                                }
+                            }
+                        } else {
+                            // If document type is empty/invalid, show in red
+                            if (prop === 'commitment__document_type_') {
+                                gate.classList.add('stop');
+                                const valueDisplay = gate.querySelector('p');
+                                if (valueDisplay) {
+                                    valueDisplay.innerText = 'NOT SET';
+                                }
+                            }
+                        }
+                    } else {
+                        // Value is undefined - mark as missing for document type
+                        if (prop === 'commitment__document_type_') {
+                            gate.classList.add('stop');
+                            const valueDisplay = gate.querySelector('p');
+                            if (valueDisplay) {
+                                valueDisplay.innerText = 'NOT SET';
+                            }
                         }
                     }
                 });
