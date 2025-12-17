@@ -90,8 +90,8 @@ export default async function handler(req, res) {
                             throw new Error('Owner ID is empty after cleaning');
                         }
                         
-                        // Correct API path for owners
-                        const ownerResponse = await hubspotClient.crm.owners.getById(cleanOwnerId);
+                        // Use the settings/users API to get owner details
+                        const ownerResponse = await hubspotClient.settings.users.getById(cleanOwnerId);
                         console.log('Owner response received:', JSON.stringify(ownerResponse, null, 2));
                         
                         ownerData = {
