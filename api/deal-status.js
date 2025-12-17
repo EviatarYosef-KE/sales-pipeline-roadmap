@@ -79,14 +79,18 @@ export default async function handler(req, res) {
                 // 5. Fetch Owner Details if owner ID exists
                 if (companyData.hubspot_owner_id) {
                     try {
+                        console.log('Attempting to fetch owner with ID:', companyData.hubspot_owner_id);
                         const ownerResponse = await hubspotClient.crm.owners.basicApi.getById(companyData.hubspot_owner_id);
+                        console.log('Owner response received:', ownerResponse);
                         ownerData = {
                             firstName: ownerResponse.firstName,
                             lastName: ownerResponse.lastName,
                             email: ownerResponse.email
                         };
+                        console.log('Owner data structured:', ownerData);
                     } catch (ownerErr) {
-                        console.warn(`Warning: Found owner ID ${companyData.hubspot_owner_id} but failed to fetch details.`, ownerErr.message);
+                        console.error('Owner lookup failed:', ownerErr);
+                        console.error('Error details:', ownerErr.message, ownerErr.body);
                         // Continue without owner data
                     }
                 }
