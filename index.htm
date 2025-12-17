@@ -905,26 +905,53 @@
                             gate.classList.add('autofilled');
                             gate.classList.remove('stop');
                             
-                            // Show the actual value for document type
-                            if (prop === 'commitment__document_type') {
-                                const valueDisplay = gate.querySelector('p');
-                                if (valueDisplay) {
+                            const valueDisplay = gate.querySelector('p');
+                            
+                            // Show actual values for specific fields
+                            if (valueDisplay) {
+                                // Document type - show the value(s)
+                                if (prop === 'commitment__document_type') {
                                     valueDisplay.innerText = displayValue;
                                 }
-                            }
-                            
-                            // Show file count for contract_file
-                            if (prop === 'contract_file') {
-                                const valueDisplay = gate.querySelector('p');
-                                if (valueDisplay && val) {
-                                    // Check if it's a URL string or array
+                                // File count
+                                else if (prop === 'contract_file') {
                                     let fileCount = 1;
-                                    if (typeof val === 'string' && val.includes(',')) {
-                                        fileCount = val.split(',').length;
+                                    if (typeof val === 'string') {
+                                        if (val.includes(';')) {
+                                            fileCount = val.split(';').filter(id => id.trim()).length;
+                                        } else if (val.includes(',')) {
+                                            fileCount = val.split(',').filter(id => id.trim()).length;
+                                        }
                                     } else if (Array.isArray(val)) {
                                         fileCount = val.length;
                                     }
                                     valueDisplay.innerText = `${fileCount} File${fileCount > 1 ? 's' : ''}`;
+                                }
+                                // Date fields - format nicely
+                                else if (prop.includes('date') || prop.includes('Date')) {
+                                    if (val && val !== 'null') {
+                                        // Try to format the date
+                                        try {
+                                            const dateObj = new Date(val);
+                                            if (!isNaN(dateObj.getTime())) {
+                                                valueDisplay.innerText = dateObj.toLocaleDateString('en-GB', { 
+                                                    day: '2-digit', 
+                                                    month: 'short', 
+                                                    year: 'numeric' 
+                                                });
+                                            } else {
+                                                valueDisplay.innerText = val;
+                                            }
+                                        } catch (e) {
+                                            valueDisplay.innerText = val;
+                                        }
+                                    }
+                                }
+                                // Other fields - show raw value
+                                else {
+                                    // Keep it short - truncate if too long
+                                    const displayText = String(val).length > 30 ? String(val).substring(0, 27) + '...' : String(val);
+                                    valueDisplay.innerText = displayText;
                                 }
                             }
                         } else {
